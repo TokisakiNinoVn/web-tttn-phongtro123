@@ -4,6 +4,8 @@ import RegisterPage from '@/views/RegisterPage.vue';
 import HomePage from '@/views/HomePage.vue';
 import PageNotFound from '@/views/PageNotFound.vue';
 import CreatePost from '@/views/post/CreatePost.vue';
+import DetailPost from '@/views/post/DetailPost.vue';
+import AccountPage from '@/views/account/AccountPage.vue';
 
 const routes = [
   {
@@ -27,8 +29,21 @@ const routes = [
     name: 'CreatePost',
     component: CreatePost,
     meta: { requiresAuth: true },
-
   },
+
+  {
+    path: '/post/:id',
+    name: 'DetailPost',
+    component: DetailPost,
+    props: (route) => ({ id: route.params.id, postDetails: route.state?.postDetails })
+  },
+  
+  {
+    path: '/account',
+    name: 'AccountPage',
+    component: AccountPage,
+  }
+  ,
 
   // Trang 404
   {

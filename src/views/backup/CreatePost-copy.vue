@@ -83,53 +83,31 @@
 
 
     <div v-if="form.files.length">
-        <h3>Preview Images/Videos:</h3>
-        <div v-for="(fileObj, index) in form.files" :key="index" class="file-preview">
-            <div v-if="fileObj.type === 1"> <!-- Image -->
-                <img :src="fileObj.previewUrl" alt="Preview" style="width: 100px; height: 100px;" @click="openPreview(index, 'image')" />
-                <button @click="removeFile(index)">Xóa</button>
-            </div>
-            <div v-else-if="fileObj.type === 2"> <!-- Video -->
-                <video :src="fileObj.previewUrl" controls style="width: 100px; height: 100px;" @click="openPreview(index, 'video')">
-                    Your browser does not support the video tag.
-                </video>
-                <button @click="removeFile(index)">Xóa</button>
-            </div>
+    <h3>Preview Images/Videos:</h3>
+    <div v-for="(fileObj, index) in form.files" :key="index">
+        <div v-if="fileObj.type === 1"> <!-- Image -->
+            <img :src="fileObj.previewUrl" alt="Preview" style="width: 100px; height: 100px;" />
+            <button @click="removeFile(index)">Xóa</button>
+        </div>
+        <div v-else-if="fileObj.type === 2"> <!-- Video -->
+            <video :src="fileObj.previewUrl" controls style="width: 100px; height: 100px;">
+                Your browser does not support the video tag.
+            </video>
+            <button @click="removeFile(index)">Xóa</button>
         </div>
     </div>
+</div>
 
-    <!-- Preview Modal for Full-Screen View -->
-    <div v-if="isPreviewModalOpen" class="preview-modal">
-        <div class="modal-content">
-            <!-- Navigation buttons -->
-            <button @click="previousFile" class="nav-button">Prev</button>
-            <button @click="nextFile" class="nav-button">Next</button>
-            
-            <!-- Close button -->
-            <button @click="closePreview" class="close-button">Close</button>
-            
-            <!-- Display Full-Screen Image/Video -->
-            <div v-if="previewType === 'image'">
-                <img :src="form.files[previewIndex].previewUrl" alt="Full Preview" class="full-preview" />
-            </div>
-            <div v-else-if="previewType === 'video'">
-                <video :src="form.files[previewIndex].previewUrl" controls class="full-preview">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-        </div>
-    </div>
 
-    <!-- Preview for 3D Files (no need for full-screen preview) -->
-    <div v-if="form.files3d.length">
-        <h3>Preview 3D Files:</h3>
-        <div v-for="(fileObj, index) in form.files3d" :key="index">
-            <div v-if="fileObj.type === 3"> <!-- 3D Image -->
-                <img :src="fileObj.previewUrl" alt="Preview 3D" style="width: 100px; height: 100px;" />
-                <button @click="removeFile3d(index)">Xóa</button>
-            </div>
+<div v-if="form.files3d.length">
+    <h3>Preview 3D Files:</h3>
+    <div v-for="(fileObj, index) in form.files3d" :key="index">
+        <div v-if="fileObj.type === 3"> <!-- 3D Image -->
+            <img :src="fileObj.previewUrl" alt="Preview 3D" style="width: 100px; height: 100px;" />
+            <button @click="removeFile3d(index)">Xóa</button>
         </div>
     </div>
+</div>
 
 
 
@@ -147,10 +125,6 @@ import { useRouter } from 'vue-router';
 
 const types = ref([]);
 const router = useRouter();
-
-// const isPreviewModalOpen = ref(false);
-// const previewIndex = ref(0);
-// const previewType = ref('image');
 
 const dataUser = localStorage.getItem('userInfo');
 const parsedUser = JSON.parse(dataUser);
@@ -227,11 +201,6 @@ const handleSubmit = async () => {
             description: form.value.description,
             amenities: form.value.amenities,
         });
-        console.log('>> Create Post Response:', response);
-        if (!response.data.data.message == "Authorization header missing or invalid") {
-            alert('Bạn chưa đăng nhập');
-            router.push('/login');
-        }
         const postId = response.data.data.postId;
 
         const uploadedFiles = [];
@@ -312,35 +281,17 @@ const clearAllAmenities = () => {
 };
 
 
-const isPreviewModalOpen = ref(false);
-const previewIndex = ref(0);
-const previewType = ref('image'); // Can be 'image' or 'video'
-
-const openPreview = (index, type) => {
-    previewIndex.value = index;
-    previewType.value = type;
-    isPreviewModalOpen.value = true;
-};
-
-const closePreview = () => {
-    isPreviewModalOpen.value = false;
-};
-
-const previousFile = () => {
-    previewIndex.value = (previewIndex.value > 0) ? previewIndex.value - 1 : form.value.files.length - 1;
-};
-
-const nextFile = () => {
-    previewIndex.value = (previewIndex.value < form.value.files.length - 1) ? previewIndex.value + 1 : 0;
-};
-
 const removeFile = (index) => {
+    // Remove the file from the array based on index
     form.value.files.splice(index, 1);
 };
 
 const removeFile3d = (index) => {
+    // Remove the 3D file from the array based on index
     form.value.files3d.splice(index, 1);
 };
+
+
 </script>
 
 
@@ -400,65 +351,6 @@ button:hover {
 .preview-video {
     max-width: 300px;
     max-height: 200px;
-}
-
-
-
-
-
-
-
-.preview-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    position: relative;
-    background: white;
-    padding: 20px;
-    max-width: 90%;
-    max-height: 90%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.full-preview {
-    width: 100%;
-    height: auto;
-    max-height: 80vh;
-    object-fit: contain;
-}
-
-.nav-button, .close-button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: #fff;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    font-size: 18px;
-}
-
-.nav-button {
-    left: 10px;
-}
-
-.close-button {
-    right: 10px;
-}
-
-.nav-button:hover, .close-button:hover {
-    background-color: #f1f1f1;
 }
 
 </style>

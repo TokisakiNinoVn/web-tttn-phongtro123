@@ -12,10 +12,10 @@ const { postController } = require('../../controllers/index');
 // router.delete('/delete', postController.delete);
 
 // Lấy thông tin chi tiết bài đăng
-router.get('/:postId', postController.getById);
+router.get('/:id', postController.getById);
 
 // Lấy tất cả bài đăng của một người dùng
-router.get('/user/:userId', postController.getAllPostOfUser);
+// router.get('/a/:userId', postController.getAllPostOfUser);
 
 // Tìm kiếm bài đăng theo địa chỉ
 router.post('/search', postController.searchByAddress);
@@ -30,9 +30,9 @@ router.post('/filter', postController.filter);
 // router.get('/saved/:userId', postController.getSavedPost);
 
 // Lấy bài đăng mới nhất
-router.get('/new', postController.getNewPost);
+router.get('/a/new', postController.getNewPost);
 
 // Lấy bài đăng cùng loại
-router.post('/same-type', postController.getPostSameType);
+router.get('/b/same-type', postController.getPostSameType);
 
 module.exports = router;

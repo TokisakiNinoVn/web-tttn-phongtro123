@@ -32,6 +32,8 @@ app.use(session({
   }
 }));
 
+app.use(express.static('public'));
+//http://localhost:5007/uploads/images/posts/1733825366323.jpg
 
 // Logging middleware
 app.use((req, res, next) => {

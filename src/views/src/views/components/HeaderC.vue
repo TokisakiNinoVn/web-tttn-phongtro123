@@ -31,7 +31,8 @@
         </li>
         <li v-if="isLoggedIn" class="relative">
           <router-link to="/create-post" class="link white dim">Đăng tin</router-link>
-          <router-link :to="`/user/${userInfor.id}`" class="link white flex items-center">
+          <router-link :to="`/account`" class="link white flex items-center">
+          <!-- <router-link :to="`/account/${userInfor.id}`" class="link white flex items-center"> -->
             <span class="mr2">{{ userInfor.name }}</span>
             <img :src="userInfor.avatar.imageUrl" alt="avatar" class="br-100 h2 w2">
           </router-link>
@@ -60,7 +61,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-// import { loginApi } from '@/api/modules/auth.api'
+import instance from '@/api/axiosConfig';
 
 const router = useRouter();
 const searchQuery = ref('');
@@ -72,21 +73,26 @@ const showConfirmModal = ref(false);
 onMounted(() => {
   const loggedInStatus = localStorage.getItem('isLogin') === 'true';
   const userData = localStorage.getItem('userInfo');
-  // console.log('userData', userData);
-
+  
   if (loggedInStatus && userData) {
     isLoggedIn.value = true;
     const parsedUser = JSON.parse(userData);
-    // console.log('parsedUser', parsedUser);
+    
+    // Thiết lập avatar với URL đầy đủ hoặc avatar mặc định
+    const avatarUrl = parsedUser.avatar 
+      ? `${instance.defaults.baseURL}${parsedUser.avatar}`
+      : 'https://i.pinimg.com/736x/03/73/62/037362f54125111ea08efb8e42afb532.jpg';
+
     userInfor.value = {
       name: parsedUser.name,
       id: parsedUser.id,
       avatar: {
-        imageUrl: parsedUser.avatar || 'https://i.pinimg.com/736x/03/73/62/037362f54125111ea08efb8e42afb532.jpg',
+        imageUrl: avatarUrl,
       },
     };
   }
 });
+
 
 
 const logout = () => {

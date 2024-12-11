@@ -9,6 +9,7 @@
     <template v-else>
         <router-link to="/login">Đăng nhập</router-link>
     </template> -->
+    <NewPostC />
     </div>
 </template>
 
@@ -16,7 +17,8 @@
 // import { ref } from 'vue';
 // import { useRouter } from 'vue-router';
 // import AppOwnerHeader from '@/components/OwnerHeaderC.vue';
-import HeaderC from '@/components/HeaderC.vue';
+import HeaderC from '@/views/components/HeaderC.vue';
+import NewPostC from './post/components/NewPostC.vue';
 
 // const isLoggedIn = ref(localStorage.getItem('userToken') !== null);
 // const router = useRouter();

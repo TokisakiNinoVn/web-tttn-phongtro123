@@ -46,6 +46,7 @@ exports.login = async (req, res, next) => {
         name: user.name,
         zalo: user.zalo,
         phone: user.phone,
+        address: user.address,
         fbUrl: user.fbUrl,
         avatar: user.avatar,
         updatedAt: user.updatedAt,

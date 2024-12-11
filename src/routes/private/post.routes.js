@@ -12,7 +12,7 @@ router.put('/update', postController.update);
 router.delete('/delete/:id', postController.delete);
 
 // Lấy thông tin chi tiết bài đăng
-router.get('/:postId', postController.getById);
+router.get('/:id', postController.getById);
 
 // Lấy tất cả bài đăng của một người dùng
 // router.get('/user/:userId', postController.getAllPostOfUser);
@@ -24,10 +24,10 @@ router.get('/:postId', postController.getById);
 // router.post('/filter', postController.filter);
 
 // Lưu bài đăng
-router.post('/save', postController.savePost);
+// router.post('/save', postController.savePost);
 
 // Lấy danh sách bài đăng đã lưu
-router.get('/saved/:userId', postController.getSavedPost);
+// router.get('/saved/:userId', postController.getSavedPost);
 
 // Lấy bài đăng mới nhất
 // router.get('/new', postController.getNewPost);
