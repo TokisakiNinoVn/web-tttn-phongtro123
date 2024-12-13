@@ -33,6 +33,6 @@ router.post('/filter', postController.filter);
 router.get('/a/new', postController.getNewPost);
 
 // Lấy bài đăng cùng loại
-router.get('/b/same-type', postController.getPostSameType);
+router.post('/b/same-type', postController.getPostSameType);
 
 module.exports = router;

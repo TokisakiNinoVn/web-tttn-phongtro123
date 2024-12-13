@@ -33,9 +33,16 @@ const handleLogin = async () => {
 
     if (response?.status === 'success' || response.data) {
       // Lưu toàn bộ dữ liệu từ field `data` vào localStorage
+      localStorage.setItem('isLogin', 'true');
       localStorage.setItem('userInfo', JSON.stringify(response.data.data));
       localStorage.setItem('isLogin', 'true');
       localStorage.setItem('token', JSON.stringify(response.data.token));
+
+      // Lấy thời gian hiện tại
+      const loginTime = new Date().toISOString();
+
+      // Lưu vào localStorage
+      localStorage.setItem('loginTime', loginTime);
 
       // Chuyển hướng về trang chính
       await router.push('/');

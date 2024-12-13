@@ -90,6 +90,9 @@
           <button @click="closeFullScreen" class="close-btn">X</button>
           <img v-if="fullScreenFile.type === 1" :src="instance.defaults.baseURL + fullScreenFile.url" alt="Full-screen image" />
           <video v-if="fullScreenFile.type === 2" :src="instance.defaults.baseURL + fullScreenFile.url" controls></video>
+          <button class="prev-btn" @click="prevImage">Previous</button>
+            <button class="next-btn" @click="nextImage">Next</button>
+
         </div>
       </div>
   
@@ -274,8 +277,29 @@
       } else {
           console.log("No previous images.");
       }
-  };
-  </script>
+};
+
+const prevImage = () => {
+    // Check if there is a previous image
+    const currentIndex = files.value.findIndex(file => file.url === fullScreenFile.value?.url);
+    if (currentIndex > 0) {
+        fullScreenFile.value = files.value[currentIndex - 1];
+    } else {
+        console.log("No previous image.");
+    }
+};
+
+const nextImage = () => {
+    // Check if there is a next image
+    const currentIndex = files.value.findIndex(file => file.url === fullScreenFile.value?.url);
+    if (currentIndex < files.value.length - 1) {
+        fullScreenFile.value = files.value[currentIndex + 1];
+    } else {
+        console.log("No more images.");
+    }
+};
+
+</script>
   
   <style scoped>
   h1 {

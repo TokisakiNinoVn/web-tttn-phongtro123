@@ -31,8 +31,8 @@ const getNewPostApi = async () => {
     return instance.get(`/api/public/post/a/new`);
 }
 
-const getSametypePostApi = async () => { 
-    return instance.get(`/api/public/post/a/sametype`);
+const getSametypePostApi = async (body) => { 
+    return instance.post(`/api/public/post/b/same-type`, body);
 }
 
 export {

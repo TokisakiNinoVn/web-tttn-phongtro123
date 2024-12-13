@@ -315,8 +315,7 @@ exports.getNewPost = async (req, res, next) => {
 };
 
 exports.getPostSameType = async (req, res, next) => {
-    const { type } = req.query;
-
+    const { type } = req.body;
     try {
         // Lấy danh sách bài đăng cùng loại
         const sql = `SELECT * FROM posts WHERE type = ? ORDER BY createdAt DESC`;
