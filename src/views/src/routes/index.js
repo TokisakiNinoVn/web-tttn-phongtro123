@@ -6,6 +6,8 @@ import PageNotFound from '@/views/PageNotFound.vue';
 import CreatePost from '@/views/post/CreatePost.vue';
 import DetailPost from '@/views/post/DetailPost.vue';
 import AccountPage from '@/views/account/AccountPage.vue';
+// import UserProfilePage from '@/views/UserProfilePage.vue';
+import UpdatePost from '@/views/post/UpdatePost.vue';
 
 const routes = [
   {
@@ -32,6 +34,12 @@ const routes = [
   },
 
   {
+    path: '/update-post/:id',
+    name: 'UpdatePost',
+    component: UpdatePost,
+  },
+
+  {
     path: '/post/:id',
     name: 'DetailPost',
     component: DetailPost,
@@ -42,8 +50,13 @@ const routes = [
     path: '/account',
     name: 'AccountPage',
     component: AccountPage,
-  }
-  ,
+  },
+
+  // {
+  //   path: '/user-profile/:id',
+  //   name: 'UserProfilePage',
+  //   component: UserProfilePage,
+  // },
 
   // Trang 404
   {

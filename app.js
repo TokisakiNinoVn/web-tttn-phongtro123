@@ -37,7 +37,7 @@ app.use(express.static('public'));
 
 // Logging middleware
 app.use((req, res, next) => {
-  console.log(`Request Method: ${req.method}, Request URL: ${req.url}`);
+  console.log(`[${req.method}] - URL: ${req.url}`);
   next();
 });
 

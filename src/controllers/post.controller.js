@@ -41,110 +41,111 @@ exports.create = async (req, res, next) => {
         return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', error.message, []), req, res, next);
     }
 }
-
-
 exports.update = async (req, res, next) => {
-    // Cấu hình upload giống như trong hàm create
-    upload(req, res, async (err) => {
-        if (err) {
-            return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'Error uploading files', err.message), req, res, next);
-        }
-
-        const { postId, title, type, address, price, acreage, realaddress, owner, phoneOwner, description, amenities } = req.body;
-
-        // Kiểm tra dữ liệu tiện ích
-        if (!Array.isArray(amenities) || amenities.length !== 11) {
-            return next(new AppError(HTTP_STATUS.BAD_REQUEST, 'Invalid amenities format', 'Amenities must be an array of 12 integers'), req, res, next);
-        }
-
-        try {
-            // Cập nhật bài đăng
-            const updatePostQuery = `
-                UPDATE posts
-                SET title = ?, type = ?, address = ?, price = ?, acreage = ?, realaddress = ?, owner = ?, phone_owner = ?, description = ?, updatedAt = NOW()
-                WHERE id = ?
+    const { 
+        postId, 
+        title, 
+        type, 
+        address, 
+        price, 
+        acreage, 
+        realaddress, 
+        owner, 
+        phoneOwner, 
+        description, 
+        amenities
+    } = req.body;
+    const filesNormal = req.body.files.files;
+    const files3d = req.body.files.files3d;
+    try {
+        const updatePostQuery = `
+            UPDATE posts
+            SET title = ?, type = ?, address = ?, price = ?, acreage = ?, realaddress = ?, owner = ?, phone_owner = ?, description = ?, updatedAt = NOW()
+            WHERE id = ?
+        `;
+        await db.pool.execute(updatePostQuery, [
+            title, type, address, price, acreage, realaddress, owner, phoneOwner, description, postId
+        ]);
+        const checkAmenitiesQuery = `SELECT COUNT(*) AS count FROM amenities WHERE id_post = ?`;
+        const [rows] = await db.pool.execute(checkAmenitiesQuery, [postId]);
+        if (rows[0].count === 0) {
+            const insertAmenitiesQuery = `
+                INSERT INTO amenities (id_post, fully_furnished, garret, washing_machine, free_time, fridge, protect, kitchen_shelf, elevator, common_owner, air_conditioner, parking)
+                VALUES (?, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
             `;
-            await db.pool.execute(updatePostQuery, [
-                title,
-                type,
-                address,
-                price,
-                acreage,
-                realaddress,
-                owner,
-                phoneOwner,
-                description,
-                postId
-            ]);
+            await db.pool.execute(insertAmenitiesQuery, [postId]);
+        }
 
-            // Kiểm tra xem tiện ích đã tồn tại hay chưa
-            const checkAmenitiesQuery = `SELECT COUNT(*) AS count FROM amenities WHERE id_post = ?`;
-            const [rows] = await db.pool.execute(checkAmenitiesQuery, [postId]);
-            const { count } = rows[0];
+        const updateAmenitiesQuery = `
+            UPDATE amenities
+            SET fully_furnished = ?, garret = ?, washing_machine = ?, free_time = ?, fridge = ?, protect = ?, 
+                kitchen_shelf = ?, elevator = ?, common_owner = ?, air_conditioner = ?, parking = ?
+            WHERE id_post = ?
+        `;
+        await db.pool.execute(updateAmenitiesQuery, [...amenities, postId]);
 
-            if (count === 0) {
-                // Chèn bản ghi mặc định nếu chưa tồn tại
-                const insertAmenitiesQuery = `
-                    INSERT INTO amenities (id_post, fully_furnished, garret, washing_machine, free_time, fridge, protect, kitchen_shelf, elevator, common_owner, air_conditioner, parking)
-                    VALUES (?, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-                `;
-                await db.pool.execute(insertAmenitiesQuery, [postId]);
+        const deleteFilesQuery = `DELETE FROM files WHERE id_post = ?`;
+        const result = await db.pool.execute(deleteFilesQuery, [postId]);
+        if (result[0].affectedRows > 0) {
+            console.log('Complete Deleted files');
+            const fileInsertQuery = `
+                INSERT INTO files (id_post, url, type, status)
+                VALUES (?, ?, ?, ?)
+            `;
+            if (Array.isArray(filesNormal)) {
+                for (const file of filesNormal) {
+                    if (file.url && file.type) {
+                        const result = await db.pool.execute(fileInsertQuery, [postId, file.url, file.type, 1]);
+                        console.log("file", result);
+                    }
+                }
             }
 
-            // Cập nhật tiện ích
-            const updateAmenitiesQuery = `
-                UPDATE amenities
-                SET fully_furnished = ?, garret = ?, washing_machine = ?, free_time = ?, fridge = ?, protect = ?, 
-                    kitchen_shelf = ?, elevator = ?, common_owner = ?, air_conditioner = ?, parking = ?
-                WHERE id_post = ?
-            `;
-            await db.pool.execute(updateAmenitiesQuery, [...amenities, postId]);
-
-            // Xử lý upload file (ảnh/video) mới nếu có
-            if (req.files && req.files.length > 0) {
-                const fileInsertQuery = `
-                    INSERT INTO files (id_post, url, type)
-                    VALUES (?, ?, ?)
-                `;
-                const filePromises = req.files.map(file => {
-                    const type = file.mimetype.startsWith('image') ? 1 : 2; // 1: Image, 2: Video
-                    const url = `/uploads/${file.mimetype.startsWith('image') ? 'images' : 'videos'}/posts/${file.filename}`;
-                    return db.pool.execute(fileInsertQuery, [postId, url, type]);
-                });
-                await Promise.all(filePromises);
+            if (Array.isArray(files3d)) {
+                for (const file of files3d) {
+                    if (file.url) {
+                        const result = await db.pool.execute(fileInsertQuery, [postId, file.url, 3, 1]);
+                        console.log("3d",result);
+                    }
+                }
             }
-
-            return next({ statusCode: HTTP_STATUS.OK, message: 'Post and amenities updated successfully', data: {} }, req, res, next);
-        } catch (error) {
-            return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', error.message, []), req, res, next);
+                
+        } else {
+            console.log('Not Deleted files');
+            return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', 'Can Not Deleted files', []), req, res, next);
         }
-    });
+
+        res.status(200).json({
+            code: 200,
+            status: 'success',
+            message: 'Post and files updated successfully',
+        });
+    } catch (error) {
+        console.error('Error updating post:', error);
+        return res.status(500).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
 };
 
 exports.delete = async (req, res, next) => {
-    // const { userId, postId } = req.body;
     const { id } = req.params;
-
     try {
         await db.pool.execute(`DELETE FROM amenities WHERE id_post = ?`, [id]);
 
-        // Lấy thông tin về các file đã upload (để xóa chúng khỏi server)
         const [files] = await db.pool.execute(`SELECT url FROM files WHERE id_post = ?`, [id]);
 
-        // Xóa các file trong bảng 'files'
         await db.pool.execute(`DELETE FROM files WHERE id_post = ?`, [id]);
 
-        // Xóa các tệp tin trên server
         files.forEach(file => {
-            const filePath = path.join(__dirname, '..', 'public', file.url); // Đảm bảo đường dẫn đúng với thư mục public trên server
+            const filePath = path.join(__dirname, '..', 'public', file.url);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
         });
 
-        // Xóa bài đăng trong bảng 'posts'
         await db.pool.execute(`DELETE FROM posts WHERE id = ?`, [id]);
-
         return next({ statusCode: HTTP_STATUS.OK, message: 'Post and related data deleted successfully', data: {} }, req, res, next);
     } catch (error) {
         return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', error.message, []), req, res, next);
@@ -184,7 +185,7 @@ exports.getById = async (req, res, next) => {
 
         const idUserPost = post[0].id_user_post;
         const [user] = await db.pool.execute(`
-            SELECT phone, name, zalo, fbUrl, avatar, verify, bio, status, createdAt
+            SELECT id, phone, name, zalo, fbUrl, avatar, verify, bio, status, createdAt
             FROM users
             WHERE id = ?
         `, [idUserPost]);
@@ -332,6 +333,63 @@ exports.getPostSameType = async (req, res, next) => {
         );
 
         // return next({ status: HTTP_STATUS.OK, message: 'Posts of the same type retrieved successfully', data: posts }, req, res, next);
+        res.status(HTTP_STATUS.OK).json({
+            code: HTTP_STATUS.OK,
+            totalDocs: posts.length,
+            data: postsWithFiles,
+            message: 'Posts of the same type retrieved successfully',
+        });
+    } catch (error) {
+        return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', error.message, []), req, res, next);
+    }
+};
+
+exports.getRandomPost = async (req, res, next) => { 
+    try {
+        // Lấy 10 bài đăng ngẫu nhiên
+        const sql = `SELECT * FROM posts ORDER BY RAND() LIMIT 10`;
+        const [posts] = await db.pool.execute(sql);
+
+        const postsWithFiles = await Promise.all(
+            posts.map(async (post) => {
+                const [files] = await db.pool.execute(
+                    `SELECT * FROM files WHERE id_post = ?`,
+                    [post.id]
+                );
+                return { ...post, files };
+            })
+        );
+
+        res.status(HTTP_STATUS.OK).json({
+            code: HTTP_STATUS.OK,
+            totalDocs: posts.length,
+            data: postsWithFiles,
+            message: 'Random posts retrieved successfully',
+        });
+    } catch (error) {
+        return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', error.message, []), req, res, next);
+    }
+}
+
+
+//Get all post of user
+exports.getAllPostOfUser = async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        // Lấy danh sách bài đăng của user
+        const sql = `SELECT * FROM posts WHERE id_user_post = ? ORDER BY createdAt DESC`;
+        const [posts] = await db.pool.execute(sql, [id]);
+
+        const postsWithFiles = await Promise.all(
+            posts.map(async (post) => {
+                const [files] = await db.pool.execute(
+                    `SELECT * FROM files WHERE id_post = ?`,
+                    [post.id]
+                );
+                return { ...post, files };
+            })
+        );
+
         res.status(HTTP_STATUS.OK).json({
             code: HTTP_STATUS.OK,
             totalDocs: posts.length,

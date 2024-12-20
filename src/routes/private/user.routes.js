@@ -17,17 +17,9 @@ router.put('/:id', userController.updateUser);
 // // Route to delete a user
 router.delete('/:id', userController.deleteUser);
 
-// // Route to add a new user
-// router.post('/add', userController.add);
-
-// // Route to search users by various fields
-// router.post('/search', userController.search);
-
-// // Route to filter users by role
-// router.post('/filter', userController.filter);
-
-
 router.post('/save', userController.savePost);
+router.post('/unsave', userController.unSavePost);
+
 router.get('/saved/:userId', userController.getSavedPost);
 router.get('/post/:userId', userController.getAllPostOfUser);
 

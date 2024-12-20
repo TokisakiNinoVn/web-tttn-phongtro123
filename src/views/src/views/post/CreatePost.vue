@@ -51,17 +51,9 @@
                     <button type="button" @click="clearAllAmenities">Clear All</button>
                 </div>
                 <div>
-                    <label><input type="checkbox" v-model="form.amenities[0]" value="1" /> Đầy đủ nội thất</label>
-                    <label><input type="checkbox" v-model="form.amenities[1]" value="1" /> Có gác</label>
-                    <label><input type="checkbox" v-model="form.amenities[2]" value="1" /> Có máy giặt</label>
-                    <label><input type="checkbox" v-model="form.amenities[3]" value="1" /> Giờ giấc tự do</label>
-                    <label><input type="checkbox" v-model="form.amenities[4]" value="1" /> Có tủ lạnh</label>
-                    <label><input type="checkbox" v-model="form.amenities[5]" value="1" /> Có bảo vệ 24/24</label>
-                    <label><input type="checkbox" v-model="form.amenities[6]" value="1" /> Có thang máy</label>
-                    <label><input type="checkbox" v-model="form.amenities[7]" value="1" /> Có hầm/chỗ để xe</label>
-                    <label><input type="checkbox" v-model="form.amenities[8]" value="1" /> Không chung chủ</label>
-                    <label><input type="checkbox" v-model="form.amenities[9]" value="1" /> Có máy lạnh</label>
-                    <label><input type="checkbox" v-model="form.amenities[10]" value="1" /> Có gác</label>
+                    <label v-for="(amenity, index) in amenitiesList" :key="index">
+                        <input type="checkbox" v-model="form.amenities[index]" /> {{ amenity }}
+                    </label>
                 </div>
             </div>
             <div class="form-group">
@@ -69,28 +61,29 @@
                 <input @change="handleFileChange" id="files" type="file" multiple />
             </div>
             <div class="form-group">
-                <label for="files">Các ảnh 3d: </label>
-                <input @change="handleFileChange3d" id="files" type="file" multiple />
+                <label for="files3d">Các ảnh 3D:</label>
+                <input 
+                    ref="files3dInput" 
+                    @change="handleFileChange3d" 
+                    id="files3d" 
+                    type="file" 
+                    multiple 
+                />
             </div>
             <button type="submit">Đăng/Phát hành bài viết</button>
         </form>
         <p v-if="message">{{ message }}</p>
-
     </div>
 
-
-
-
-
-    <div v-if="form.files.length">
+    <div v-if="form.files.length" class="preview-images">
         <h3>Preview Images/Videos:</h3>
         <div v-for="(fileObj, index) in form.files" :key="index" class="file-preview">
-            <div v-if="fileObj.type === 1"> <!-- Image -->
-                <img :src="fileObj.previewUrl" alt="Preview" style="width: 100px; height: 100px;" @click="openPreview(index, 'image')" />
+            <div v-if="fileObj.type === 1">
+                <img :src="fileObj.previewUrl" alt="Preview" style="width: 400px; height: 400px;" @click="openPreview(index, 'image')" />
                 <button @click="removeFile(index)">Xóa</button>
             </div>
-            <div v-else-if="fileObj.type === 2"> <!-- Video -->
-                <video :src="fileObj.previewUrl" controls style="width: 100px; height: 100px;" @click="openPreview(index, 'video')">
+            <div v-else-if="fileObj.type === 2">
+                <video :src="fileObj.previewUrl" controls style="width: 400px; height: 400px;" @click="openPreview(index, 'video')">
                     Your browser does not support the video tag.
                 </video>
                 <button @click="removeFile(index)">Xóa</button>
@@ -98,17 +91,11 @@
         </div>
     </div>
 
-    <!-- Preview Modal for Full-Screen View -->
     <div v-if="isPreviewModalOpen" class="preview-modal">
         <div class="modal-content">
-            <!-- Navigation buttons -->
             <button @click="previousFile" class="nav-button">Prev</button>
             <button @click="nextFile" class="nav-button">Next</button>
-            
-            <!-- Close button -->
             <button @click="closePreview" class="close-button">Close</button>
-            
-            <!-- Display Full-Screen Image/Video -->
             <div v-if="previewType === 'image'">
                 <img :src="form.files[previewIndex].previewUrl" alt="Full Preview" class="full-preview" />
             </div>
@@ -120,90 +107,70 @@
         </div>
     </div>
 
-    <!-- Preview for 3D Files (no need for full-screen preview) -->
     <div v-if="form.files3d.length">
-        <h3>Preview 3D Files:</h3>
-        <div v-for="(fileObj, index) in form.files3d" :key="index">
-            <div v-if="fileObj.type === 3"> <!-- 3D Image -->
-                <img :src="fileObj.previewUrl" alt="Preview 3D" style="width: 100px; height: 100px;" />
-                <button @click="removeFile3d(index)">Xóa</button>
-            </div>
-        </div>
+        <h3>View 3D Images:</h3>
+        <button class="next-btn" @click="open3dPreview(0)">View 3D Image Upload</button>
     </div>
 
-
-
+    <div v-if="is3dImageVisible" class="pannellum-container">
+        <button class="delete-btn" @click="removeFile3d(current3dIndex)">Delete</button>
+        <button class="prev-btn" @click="prev3dImage">Previous</button>
+        <div id="panorama" class="panorama"></div>
+        <button class="next-btn" @click="next3dImage">Next</button>
+        <button class="close-btn" @click="close3dImage">Close</button>
+    </div>
     <AddressModal v-if="isModalOpen" @close="closeModal" @complete="updateAddress" />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { createPostApi } from '@/api/modules/post.api';
+import { useRouter } from 'vue-router';
 import { getAllTypesApi } from '@/api/modules/type.api';
+import { createPostApi } from '@/api/modules/post.api';
 import { uploadApi, upload3dApi } from '@/api/modules/upload.api';
 import AddressModal from '../components/AddressSelectC.vue';
-import { useRouter } from 'vue-router';
-// import { set } from 'core-js/core/dict';
 
+// State variables
 const types = ref([]);
 const router = useRouter();
-
-// const isPreviewModalOpen = ref(false);
-// const previewIndex = ref(0);
-// const previewType = ref('image');
-
 const dataUser = localStorage.getItem('userInfo');
 const parsedUser = JSON.parse(dataUser);
-
-const form = ref({
-    userId: parsedUser.id,
-    title: '',
-    type: '',
-    address: '',
-    price: '',
-    acreage: '',
-    realaddress: '',
-    owner: '',
-    phoneOwner: '',
-    description: '',
-    amenities: Array(11).fill(false),
-    files: [],
-    files3d: []
-});
-
-const message = ref('');
-
-const handleFileChange = (event) => {
-    const files = event.target.files;
-    form.value.files = Array.from(files).map(file => {
-        // Ensure the file is valid before processing
-        if (file) {
-            return {
-                file,
-                type: file.type.startsWith('image') ? 1 : file.type.startsWith('video') ? 2 : null,
-                previewUrl: file ? URL.createObjectURL(file) : null // Create object URL for preview
-            };
-        }
-    }).filter(Boolean);  // Remove any undefined/null entries
-};
-
-
-// Handle file change for 3D images
-const handleFileChange3d = (event) => {
-    const files = event.target.files;
-    form.value.files3d = Array.from(files).map(file => ({
-        file,
-        type: file.type.startsWith('image') ? 3 : file.type.startsWith('video') ? 2 : null
-    }));
-};
-
 const isModalOpen = ref(false);
-const openAddressModal = () => {
-    isModalOpen.value = true;
-    console.log('>> Open Address Modal');
-};
-const closeModal = () => {
-    isModalOpen.value = false;
+const isPreviewModalOpen = ref(false);
+const is3dImageVisible = ref(false);
+const previewIndex = ref(0);
+const previewType = ref('image');
+const current3dIndex = ref(0);
+const message = ref('');
+const files3dInput = ref(null); 
+const form = ref({
+  userId: parsedUser?.id || '',
+  title: '',
+  type: '',
+  address: '',
+  price: '',
+  acreage: '',
+  realaddress: '',
+  owner: parsedUser?.name || '',
+  phoneOwner: parsedUser?.phone || '',
+  description: '',
+  amenities: Array(11).fill(false),
+  files: [],
+  files3d: []
+});
+const amenitiesList = [
+  "Đầy đủ nội thất", "Có gác", "Có máy giặt", "Giờ giấc tự do", 
+  "Có tủ lạnh", "Có bảo vệ 24/24", "Có thang máy", 
+  "Có hầm/chỗ để xe", "Không chung chủ", "Có máy lạnh", "Khác"
+];
+
+const validateForm = () => {
+  if (!form.value.title.trim()) return 'Tiêu đề không được để trống';
+  if (!form.value.type) return 'Loại bài đăng chưa được chọn';
+  if (!form.value.address.trim()) return 'Địa chỉ chưa được chọn';
+  if (!form.value.price || isNaN(form.value.price)) return 'Giá phải là số hợp lệ';
+  if (!form.value.acreage || isNaN(form.value.acreage)) return 'Diện tích phải là số hợp lệ';
+  return null;
 };
 
 const updateAddress = (address) => {
@@ -211,97 +178,6 @@ const updateAddress = (address) => {
     closeModal();
 };
 
-// Handle form submission
-const handleSubmit = async () => {
-    try {
-        const response = await createPostApi({
-            userId: form.value.userId,
-            title: form.value.title,
-            type: form.value.type,
-            address: form.value.address,
-            price: form.value.price,
-            acreage: form.value.acreage,
-            realaddress: form.value.realaddress,
-            owner: form.value.owner,
-            phoneOwner: form.value.phoneOwner,
-            description: form.value.description,
-            amenities: form.value.amenities,
-        });
-        console.log('>> Create Post Response:', response);
-        if (!response.data.data.message == "Authorization header missing or invalid") {
-            alert('Bạn chưa đăng nhập');
-            router.push('/login');
-        }
-        const postId = response.data.data.postId;
-
-        const uploadedFiles = [];
-        const uploadedFiles3d = [];
-
-        if (form.value.files.length) {
-            const formData = new FormData();
-            formData.append('postId', postId);
-            form.value.files.forEach(fileObj => {
-                formData.append('files', fileObj.file);
-            });
-
-            const uploadResponse = await uploadApi(formData);
-
-            if (Array.isArray(uploadResponse.data.data)) {
-                uploadedFiles.push(
-                    ...uploadResponse.data.data.map((uploadedFile, index) => ({
-                        url: uploadedFile.url,
-                        type: form.value.files[index].type,
-                    }))
-                );
-
-            } else {
-                console.error("Data is not an array:", uploadResponse.data.data);
-            }
-
-        }
-
-        // Upload 3D images
-        if (form.value.files3d.length) {
-            const formData3d = new FormData();
-            formData3d.append('postId', postId);
-            form.value.files3d.forEach(fileObj => {
-                formData3d.append('files', fileObj.file);
-            });
-            const upload3dResponse = await upload3dApi(formData3d);
-            console.log('>> Upload 3D Response:', upload3dResponse);
-            console.log('>> Upload 3D Response:', upload3dResponse.data.data);
-
-            uploadedFiles3d.push(
-                ...upload3dResponse.data.data.map((uploadedFile, index) => ({
-                    url: uploadedFile.url,
-                    type: form.value.files3d[index].type,
-                }))
-            );
-        }
-
-        alert('Đăng bài viết thành công');
-        setTimeout(() => {
-            router.push('/');
-        }, 1000);
-    } catch (error) {
-        console.error('>> Error:', error);
-        message.value = error.response?.data?.message || 'An error occurred.';
-    }
-};
-
-// On mounted, fetch the post types
-onMounted(async () => {
-    const loggedInStatus = localStorage.getItem('isLogin') === 'true';
-    if (!loggedInStatus) {
-        router.push('/login');
-    }
-    try {
-        const response = await getAllTypesApi();
-        types.value = response.data.data;
-    } catch (error) {
-        message.value = 'Error fetching post types.';
-    }
-});
 
 const checkAllAmenities = () => {
     form.value.amenities = form.value.amenities.map(() => true);
@@ -311,154 +187,205 @@ const clearAllAmenities = () => {
     form.value.amenities = form.value.amenities.map(() => false);
 };
 
-
-const isPreviewModalOpen = ref(false);
-const previewIndex = ref(0);
-const previewType = ref('image'); // Can be 'image' or 'video'
-
+// Functions to manage modal states
+const openAddressModal = () => (isModalOpen.value = true);
+const closeModal = () => (isModalOpen.value = false);
 const openPreview = (index, type) => {
-    previewIndex.value = index;
-    previewType.value = type;
-    isPreviewModalOpen.value = true;
+  previewIndex.value = index;
+  previewType.value = type;
+  isPreviewModalOpen.value = true;
+};
+const closePreview = () => (isPreviewModalOpen.value = false);
+
+// Functions to manage files
+const handleFileChange = (event) => {
+  const files = Array.from(event.target.files);
+  form.value.files = files.map((file) => ({
+    file,
+    type: file.type.startsWith('image') ? 1 : file.type.startsWith('video') ? 2 : null,
+    previewUrl: URL.createObjectURL(file)
+  }));
 };
 
-const closePreview = () => {
-    isPreviewModalOpen.value = false;
+onMounted(async () => {
+    const loggedInStatus = localStorage.getItem('isLogin') === 'true';
+    if (!loggedInStatus) {
+        router.push('/login');
+    }
+    const pannellumCss = 'https://cdn.jsdelivr.net/npm/pannellum@2.5.5/build/pannellum.css';
+    const pannellumJs = 'https://cdn.jsdelivr.net/npm/pannellum@2.5.5/build/pannellum.js';
+
+    if (!document.querySelector(`link[href="${pannellumCss}"]`)) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = pannellumCss;
+        document.head.appendChild(link);
+    }
+
+    if (!document.querySelector(`script[src="${pannellumJs}"]`)) {
+        const script = document.createElement('script');
+        script.src = pannellumJs;
+        document.head.appendChild(script);
+    }
+    try {
+        const response = await getAllTypesApi();
+        types.value = response.data.data;
+    } catch (error) {
+        message.value = 'Error fetching post types.';
+    }
+});
+
+const handleFileChange3d = (event) => {
+    const files = Array.from(event.target.files);
+    form.value.files3d = files.map((file) => ({
+        file,
+        previewUrl: URL.createObjectURL(file)
+    }));
+};
+const removeFile = (index) => form.value.files.splice(index, 1);
+const nextFile = () => (previewIndex.value = (previewIndex.value + 1) % form.value.files.length);
+const previousFile = () => (previewIndex.value = (previewIndex.value - 1 + form.value.files.length) % form.value.files.length);
+
+// Submit form
+const handleSubmit = async () => {
+    const errorMessage = validateForm();
+    if (errorMessage) {
+        alert(errorMessage);
+        return;
+    }
+    try {
+        const postResponse = await createPostApi({ ...form.value });
+        const postId = postResponse.data?.data?.postId;
+        if (!postId) throw new Error('Post ID missing');
+
+        // Upload files
+        await uploadFiles(postId);
+        alert('Đăng bài viết thành công');
+        setTimeout(() => router.push('/'), 1000);
+    } catch (error) {
+        console.error('Error submitting form:', error);
+        message.value = error.response?.data?.message || 'An error occurred.';
+    }
 };
 
-const previousFile = () => {
-    previewIndex.value = (previewIndex.value > 0) ? previewIndex.value - 1 : form.value.files.length - 1;
-};
+const uploadFiles = async (postId) => {
+  const uploadedFiles = [];
+  const uploadedFiles3d = [];
 
-const nextFile = () => {
-    previewIndex.value = (previewIndex.value < form.value.files.length - 1) ? previewIndex.value + 1 : 0;
-};
+  if (form.value.files.length) {
+    const formData = new FormData();
+    formData.append('postId', postId);
+    form.value.files.forEach((fileObj) => formData.append('files', fileObj.file));
 
-const removeFile = (index) => {
-    form.value.files.splice(index, 1);
+    const uploadResponse = await uploadApi(formData);
+    uploadedFiles.push(
+      ...(uploadResponse.data?.data || []).map((uploadedFile, index) => ({
+        url: uploadedFile.url,
+        type: form.value.files[index].type
+      }))
+    );
+  }
+
+  if (form.value.files3d.length) {
+    const formData3d = new FormData();
+    formData3d.append('postId', postId);
+    form.value.files3d.forEach((fileObj) => formData3d.append('files', fileObj.file));
+
+    const upload3dResponse = await upload3dApi(formData3d);
+    uploadedFiles3d.push(
+      ...(upload3dResponse.data?.data || []).map((uploadedFile) => ({
+        url: uploadedFile.url
+      }))
+    );
+  }
 };
 
 const removeFile3d = (index) => {
     form.value.files3d.splice(index, 1);
+    if (form.value.files3d.length === 0) {
+        is3dImageVisible.value = false;
+        files3dInput.value.value = null;
+    } else {
+        if (index >= form.value.files3d.length) {
+            current3dIndex.value = form.value.files3d.length - 1; // Move to the last available index
+        }
+        open3dPreview(current3dIndex.value); // Load the panorama for the new current index
+    }
+};
+const close3dImage = () => (is3dImageVisible.value = false);
+const next3dImage = () => {
+    if (current3dIndex.value < form.value.files3d.length - 1) {
+        current3dIndex.value++;
+        open3dPreview(current3dIndex.value);
+    } else {
+        console.log("No more images.");
+    }
+};
+
+const prev3dImage = () => {
+    if (current3dIndex.value > 0) {
+        current3dIndex.value--;
+        open3dPreview(current3dIndex.value);
+    }
+};
+
+const open3dPreview = (index) => {
+    current3dIndex.value = index;
+    is3dImageVisible.value = true;
+    setTimeout(() => {
+        // eslint-disable-next-line no-undef
+        pannellum.viewer('panorama', {
+            type: 'equirectangular',
+            panorama: form.value.files3d[index].previewUrl
+        });
+    }, 100);
 };
 </script>
 
 
-
-
 <style scoped>
-.create-post {
-    max-width: 600px;
-    margin: 0 auto;
-}
-.form-group {
-    margin-bottom: 1rem;
-}
-label {
-    display: block;
-    margin-bottom: 0.5rem;
-}
-input, select, textarea {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-button {
-    padding: 0.5rem 1rem;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-button:hover {
-    background-color: #0056b3;
-}
-
-.preview-section {
-    margin-top: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
-}
-
-.preview-section h2 {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.preview-item {
-    margin-top: 10px;
-}
-
-.preview-image, .preview-video, .preview-3d-image {
-    max-width: 200px;
-    margin-right: 10px;
-}
-
-.preview-video {
-    max-width: 300px;
-    max-height: 200px;
-}
-
-
-
-
-
-
-
-.preview-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
+.pannellum-container {
+    position: relative;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: #000;
 }
-
-.modal-content {
-    position: relative;
-    background: white;
-    padding: 20px;
-    max-width: 90%;
-    max-height: 90%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.full-preview {
-    width: 100%;
-    height: auto;
-    max-height: 80vh;
-    object-fit: contain;
-}
-
-.nav-button, .close-button {
+.close-btn, .prev-btn, .next-btn {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
     border: none;
-    padding: 10px;
+    padding: 10px 15px;
+    font-size: 16px;
     cursor: pointer;
-    font-size: 18px;
+    z-index: 1100;
 }
-
-.nav-button {
-    left: 10px;
-}
-
-.close-button {
+.close-btn {
+    top: 10px;
     right: 10px;
 }
-
-.nav-button:hover, .close-button:hover {
-    background-color: #f1f1f1;
+.prev-btn {
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
 }
 
+.next-btn {
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+}
+
+.delete-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 1100;
+}
 </style>

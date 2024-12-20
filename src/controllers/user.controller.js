@@ -1,6 +1,7 @@
 const db = require('../config/db.config');
 const bcrypt = require('bcrypt');
 const { HTTP_STATUS } = require('../constants/status-code');
+const AppError  = require('../utils/app-error');
 
 exports.savePost = async (req, res, next) => {
   const { userId, postId } = req.body;
@@ -43,7 +44,6 @@ exports.savePost = async (req, res, next) => {
 
 exports.getSavedPost = async (req, res, next) => { 
   const { userId } = req.params;
-
   try {
       // Lấy danh sách bài đăng đã lưu
       const [posts] = await db.pool.execute(`
@@ -51,19 +51,33 @@ exports.getSavedPost = async (req, res, next) => {
           JOIN posts p ON s.id_post = p.id
           WHERE s.id_user = ?
       `, [userId]);
+    
+      const postsWithFiles = await Promise.all(
+        posts.map(async (post) => {
+            const [files] = await db.pool.execute(
+                `SELECT * FROM files WHERE id_post = ?`,
+                [post.id]
+            );
+            return { ...post, files };
+        })
+    );
 
-    // return next({ status: HTTP_STATUS.OK, message: 'Get saved post successfully', data: posts }, req, res, next);
+    // Trả về kết quả
+    res.status(HTTP_STATUS.OK).json({
+        code: HTTP_STATUS.OK,
+        message: 'Posts retrieved successfully',
+        totalDocs: postsWithFiles.length,
+        data: postsWithFiles
+    });
     res.status(HTTP_STATUS.OK).json({
       message: 'Get saved post successfully',
       totalDocs: posts.length,
       data: posts
     });
   } catch (error) {
-      return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', error.message, []), req, res, next);
+    return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR,'fail',error.message,[]), req,res, next);
   }
 }
-
-
 
 
 exports.getAllPostOfUser = async (req, res, next) => {
@@ -112,9 +126,7 @@ exports.getAllPostOfUser = async (req, res, next) => {
 // Cập nhật thông tin người dùng
 exports.updateUser = async (req, res, next) => {
   const { id } = req.params; // Lấy id từ params
-  const { name, phone, address, gender, bio, avatar, fbUrl, zalo } = req.body; // Lấy dữ liệu từ body
-  console.log(">> ", req.body);
-  console.log(">> ", req.params);
+  const { name, phone, address, gender, bio, avatar, fbUrl, zalo } = req.body;
 
   try {
     // Câu truy vấn cập nhật thông tin người dùng
@@ -171,3 +183,35 @@ exports.deleteUser = async (req, res, next) => {
   }
 };
 
+exports.unSavePost = async (req, res, next) => { 
+  const { userId, postId } = req.body;
+
+  try {
+    // Kiểm tra xem postId và userId có tồn tại không
+    const [post] = await db.pool.execute(`SELECT id FROM posts WHERE id = ?`, [postId]);
+    const [user] = await db.pool.execute(`SELECT id FROM users WHERE id = ?`, [userId]);
+
+    if (post.length === 0 || user.length === 0) {
+      return next(new AppError(HTTP_STATUS.NOT_FOUND, 'fail', 'Post or User not found', []), req, res, next);
+    }
+
+    // check xem post đã được lưu chưa
+    const [savedPost] = await db.pool.execute(`SELECT * FROM saves_post WHERE id_user = ? AND id_post = ?`, [userId, postId]);
+    if (savedPost.length === 0) { 
+      return next(new AppError(HTTP_STATUS.BAD_REQUEST, 'fail', 'Bạn chưa lưu bài viết này', []), req, res, next);
+    }
+    
+    const createAt = new Date();
+
+    // Lưu post vào danh sách đã lưu
+    const sql = `DELETE FROM saves_post WHERE id_user = ? AND id_post = ?`;
+    await db.pool.execute(sql, [userId, postId]);
+
+    res.status(HTTP_STATUS.OK).json({
+      message: 'Post unliked successfully',
+      data: []
+    });
+  } catch (error) {
+    return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', error.message, []), req, res, next);
+  }
+}

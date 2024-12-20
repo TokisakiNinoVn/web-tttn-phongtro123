@@ -1,5 +1,5 @@
 <template>
-  <header class="w-100 bg-light-gray pv3 ph4 fixed">
+  <header class="w-100 bg-light-gray pv3 ph4 fixed fixed-header">
     <!-- Contact Links -->
     <div class="link-contact flex justify-end mb3">
       <a href="https://nino.is-a.dev/" class="link-contact-item mh2 dim">
@@ -42,7 +42,7 @@
             </router-link>
           </li>
           <li v-if="!isLoggedIn" class="mh2">
-            <router-link to="/signup" class="link dim dark-gray hover-light-blue">
+            <router-link to="/register" class="link dim dark-gray hover-light-blue">
               Đăng ký
             </router-link>
           </li>
@@ -58,27 +58,6 @@
         </ul>
       </nav>
     </div>
-
-    <!-- Logout Confirmation Modal -->
-    <div 
-      v-if="showConfirmModal" 
-      class="fixed top-0 left-0 w-100 h-100 bg-black-50 flex items-center justify-center">
-      <div class="bg-white pa3 br3 shadow-4 w-100 mw6">
-        <p class="mb3 f5">Bạn có muốn đăng xuất?</p>
-        <div class="flex justify-end">
-          <button 
-            @click="confirmLogout" 
-            class="bg-red white pa2 br2 mr2 pointer dim">
-            Có
-          </button>
-          <button 
-            @click="cancelLogout" 
-            class="bg-light-gray dark-gray pa2 br2 pointer dim">
-            Không
-          </button>
-        </div>
-      </div>
-    </div>
   </header>
 </template>
 
@@ -92,7 +71,7 @@ const router = useRouter();
 const searchQuery = ref('');
 const isLoggedIn = ref(false);
 const userInfor = ref({});
-const showConfirmModal = ref(false);
+// const showConfirmModal = ref(false);
 
 
 onMounted(() => {
@@ -102,8 +81,7 @@ onMounted(() => {
   if (loggedInStatus && userData) {
     isLoggedIn.value = true;
     const parsedUser = JSON.parse(userData);
-    
-    // Thiết lập avatar với URL đầy đủ hoặc avatar mặc định
+
     const avatarUrl = parsedUser.avatar 
       ? `${instance.defaults.baseURL}${parsedUser.avatar}`
       : 'https://i.pinimg.com/736x/03/73/62/037362f54125111ea08efb8e42afb532.jpg';
@@ -117,31 +95,6 @@ onMounted(() => {
     };
   }
 });
-
-
-
-const logout = () => {
-  localStorage.removeItem('isLogin');
-  localStorage.removeItem('userInfo');
-  isLoggedIn.value = false;
-  userInfor.value = {};
-  router.push('/');
-};
-
-
-// const showLogoutConfirm = () => {
-//   showConfirmModal.value = true;
-// };
-
-const confirmLogout = () => {
-  logout();
-  showConfirmModal.value = false;
-};
-
-const cancelLogout = () => {
-  showConfirmModal.value = false;
-};
-
 const performSearch = () => {
   if (searchQuery.value.trim()) {
     router.push({ name: 'SearchResults', query: { query: searchQuery.value.trim() } });
@@ -149,9 +102,11 @@ const performSearch = () => {
 };
 </script>
 
-
-
 <style scoped>
+.fixed-header {
+  z-index: 1000;
+  top: 0;
+}
 .link-contact {
   display: flex;
   align-items: center;

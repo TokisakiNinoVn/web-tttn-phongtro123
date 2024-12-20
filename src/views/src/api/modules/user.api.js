@@ -22,10 +22,15 @@ const getAllPostOfUserApi = async (id) => {
     return instance.get(`/api/private/user/post/${id}`);
 }
 
+const unSavePostApi = async (body) => { 
+    return instance.post(`/api/private/user/unsave/`, body);
+}
+
 export {
     updateUserApi,
     deleteUserApi,
     savePostApi,
     getPostSaveUserApi,
-    getAllPostOfUserApi
+    getAllPostOfUserApi,
+    unSavePostApi
 };

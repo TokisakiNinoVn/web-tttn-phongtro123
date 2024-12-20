@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const AppError = require('../utils/app-error');
 const { HTTP_STATUS } = require('../constants/status-code');
-const db = require('../config/db.config'); // Đảm bảo bạn có db.config để thực hiện truy vấn
+const db = require('../config/db.config');
 
 // Set up the multer storage configuration
 const storage = multer.diskStorage({

@@ -1,14 +1,16 @@
-userAvatarAvatar<template>
+<template>
     <div>
-        <h1>Management Account</h1>
-        <div class="main">
-            <div class="nav-bar">
-                <ul>
-                    <li :class="{ active: activeSection === 'account' }" @click="viewAccountInfo">Quản lý tài khoản</li>
-                    <li :class="{ active: activeSection === 'posts' }" @click="viewPosts">Quản lý bài đăng</li>
-                    <li :class="{ active: activeSection === 'saved' }" @click="viewSavedPosts">Các bài viết đã lưu</li>
-                </ul>
-            </div>
+      <h1>Management Account</h1>
+      <div class="main">
+        <div class="nav-bar">
+          <router-link to="/create-post">Tạo mới bài viết</router-link>
+          <ul>
+            <li :class="{ active: activeSection === 'account' }" @click="viewAccountInfo">Quản lý tài khoản</li>
+            <li :class="{ active: activeSection === 'posts' }" @click="viewPosts">Quản lý bài đăng</li>
+            <li :class="{ active: activeSection === 'saved' }" @click="viewSavedPosts">Các bài viết đã lưu</li>
+          </ul>
+        </div>
+        <div class="content">
             <div class="content">
                 <!-- Account Management -->
                 <div class="account" v-if="activeSection === 'account'">
@@ -64,29 +66,64 @@ userAvatarAvatar<template>
                         <p>Không có thông tin tài khoản.</p>
                     </div>
                 </div>
-
-                <!-- Other Sections -->
-                <!-- Post Management -->
-                <div class="post-management" v-if="activeSection === 'posts'">
-                    <h2>Quản lý bài viết</h2>
-                    <!-- Code for post management -->
-                </div>
-                <!-- Saved Posts -->
-                <div class="save-post" v-if="activeSection === 'saved'">
-                    <h2>Các bài viết đã lưu</h2>
-                    <!-- Code for saved posts -->
-                </div>
+  
+          <!-- Post Management -->
+          <div class="post-management" v-if="activeSection === 'posts'">
+            <h2>Quản lý bài viết</h2>
+            <div v-for="post in userPosts" :key="post.id" class="post-item">
+              <img v-if="post.files.length > 0" :src="instance.defaults.baseURL + post.files[0].url" alt="Post image" />
+              <div class="description">
+                <span class="title">{{ post.title }}</span>
+                <p>
+                  <span class="price">{{ post.price }}</span> triệu/tháng
+                </p>
+                <p>
+                  <span class="acreage">{{ post.acreage }}</span> m²
+                </p>
+                <p>
+                  <span class="address">{{ post.address }}</span>
+                </p>
+              </div>
+              <button @click="updatePost(post.id)">Chỉnh sửa bài viết</button>
+              <button @click="deletePost(post.id)">Xóa bài viết</button>
             </div>
+          </div>
+  
+          <!-- Saved Posts -->
+          <div class="save-post" v-if="activeSection === 'saved'">
+            <h2>Các bài viết đã lưu</h2>
+            <div v-for="post in savedPosts" :key="post.id" class="post-item">
+              <img v-if="post.files.length > 0" :src="instance.defaults.baseURL + post.files[0].url" alt="Saved post image" />
+              <div class="description">
+                <span class="title">{{ post.title }}</span>
+                <p>
+                  <span class="price">{{ post.price }}</span> triệu/tháng
+                </p>
+                <p>
+                  <span class="acreage">{{ post.acreage }}</span> m²
+                </p>
+                <p>
+                  <span class="address">{{ post.address }}</span>
+                </p>
+              </div>
+              <button @click="unSavePost(post.id)">Bỏ lưu bài viết</button>
+              <button @click="viewDetails(post.id)">Xem chi tiết bài viết</button>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</template>
+</div>
+  </template>
 
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { uploadApi } from '@/api/modules/upload.api';
-import { deleteUserApi, getPostSaveUserApi, getAllPostOfUserApi, updateUserApi } from "@/api/modules/user.api";
+import { unSavePostApi } from '@/api/modules/user.api';
+import { deletePostApi } from '@/api/modules/post.api';
+import { deleteUserApi, getPostSaveUserApi, getAllPostOfUserApi, updateUserApi,  } from "@/api/modules/user.api";
 import instance from '@/api/axiosConfig';
 
 // States
@@ -97,6 +134,7 @@ const userPosts = ref([]);
 const savedPosts = ref([]);
 const activeSection = ref('account');
 const selectedFile = ref(null);
+// const posts = ref([]);
 
 // Computed property for avatar
 const userAvatar = computed(() => {
@@ -113,24 +151,20 @@ onMounted(() => {
     }
 });
 
-// Methods
+//// Methods
 const handleFileChange = (event) => {
     selectedFile.value = event.target.files[0];
 };
 
 const handleUpdate = async () => {
     try {
-        let avatarUrl = userAvatar.value;
-
-        // Kiểm tra và upload avatar nếu có file mới được chọn
+      let avatarUrl = userAvatar.value.replace(`${instance.defaults.baseURL}/`, '');
         if (selectedFile.value) {
             const formData = new FormData();
             formData.append('postId', 0);
             formData.append('files', selectedFile.value);
             const uploadResponse = await uploadApi(formData);
-            console.log('Upload response:', uploadResponse.data.data[0].url);
             avatarUrl = uploadResponse.data.data[0].url;
-            console.log('Uploaded avatar:', avatarUrl);
         }
 
         // Dữ liệu gửi lên API backend
@@ -165,8 +199,6 @@ const logoutUser = () => {
         alert('Đăng xuất thành công!');
     }
 };
-
-
 
 const viewAccountInfo = () => {
     activeSection.value = 'account';
@@ -208,6 +240,58 @@ const deleteUser = async (id) => {
             console.error('Error deleting user:', error);
         }
     }
+};
+
+// Hàm xử lý khi nhấn nút "Xem chi tiết"
+const updatePost = async (postId) => {
+    console.log("Chỉnh sửa bài đăng", postId);
+    try {
+        router.push({
+            name: 'UpdatePost',
+            params: { id: postId },
+        });
+    } catch (error) {
+        console.error("Lỗi khi gọi API chi tiết bài đăng", error);
+    }
+};
+
+const unSavePost = async (postId) => {
+    const body = {
+        postId: postId,
+        userId: userInfo.value.id,
+    };
+  try {
+    await unSavePostApi(body);
+    savedPosts.value = savedPosts.value.filter((post) => post.id !== postId);
+    alert('Đã bỏ lưu bài viết thành công!');
+  } catch (error) {
+    console.error('Error unsaving post:', error);
+    alert('Không thể bỏ lưu bài viết.');
+  }
+};
+
+const deletePost = async (postId) => {
+  if (confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+    try {
+        await deletePostApi(postId);
+        alert('Xóa bài viết thành công!');
+        userPosts.value = userPosts.value.filter((post) => post.id !== postId);
+    } catch (error) {
+      console.error('Error deleting post:', error);
+    }
+  }
+};
+
+const viewDetails = async (postId) => {
+    console.log("Xem chi tiết bài đăng", postId);
+  try {
+    router.push({
+      name: 'DetailPost',
+      params: { id: postId },
+    });
+  } catch (error) {
+    console.error("Lỗi khi gọi API chi tiết bài đăng", error);
+  }
 };
 </script>
 

@@ -1,7 +1,6 @@
 <template>
     <HeaderC />
     <div class="home-container">
-        <h2>Trang chủ</h2>
         <NewPostC />
         <PostPhongtroC />
         <PostCanhoC />
@@ -19,6 +18,7 @@
         <button @click="closeNotification"><ion-icon name="close-circle-outline"></ion-icon></button>
         <p>Bạn chưa có tài khoản? <br> Đăng ký ngay để tận hưởng các tính năng tuyệt vời!</p>
         <button @click="redirectToRegister">Đăng ký ngay</button>
+        <button @click="redirectToLogin">Đăng nhập</button>
     </div>
     <!-- Nút Scroll to Top -->
     <button v-if="showScrollTop" class="scroll-to-top" @click="scrollToTop">
@@ -100,7 +100,7 @@ function scrollToTop() {
 .home-container {
     text-align: center;
     height: 200vh;
-    margin-top: 100px;
+    margin-top: 140px;
 }
 
 .session-expired,
