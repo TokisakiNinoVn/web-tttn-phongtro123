@@ -161,13 +161,9 @@ onMounted(async () => {
             amenities.value = post.value.amenities || {};
             files.value = post.value.filesNormal || [];
             files360.value = post.value.files360 || [];
-            console.log('files360:', files360.value);
             
             if (files360.value.length > 0) {
                 current3dImageIndex.value = 0;
-                console.log('files360:', files360.value);
-                console.log('files360:', files360.value.length);
-                console.log("current3dImageIndex value:", current3dImageIndex.value);
             } else {
                 console.log("Không có hình ảnh 3D.");
             }

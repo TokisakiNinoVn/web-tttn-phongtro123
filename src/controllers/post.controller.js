@@ -218,8 +218,8 @@ exports.searchByAddress = async (req, res, next) => {
 
     try {
         const [posts] = await db.pool.execute(`SELECT * FROM posts WHERE address LIKE ?`, [`%${address}%`]);
-        if (posts.length === 0) {
-            return next(new AppError(HTTP_STATUS.NOT_FOUND, 'fail', 'No posts found', []), req, res, next);
+        if (!posts.length) {
+            return next(new AppError(HTTP_STATUS.OK, 'fail', 'No posts found', []), req, res, next);
         }
 
         const postsWithFiles = await Promise.all(
@@ -245,7 +245,6 @@ exports.filter = async (req, res, next) => {
     const { type, address, price, acreage, amenities } = req.body;
 
     try {
-        // Build the base query
         let query = `
             SELECT * FROM posts
             WHERE type LIKE ? AND address LIKE ? AND price <= ? AND acreage >= ?

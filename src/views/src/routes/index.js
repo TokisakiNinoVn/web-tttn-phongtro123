@@ -6,8 +6,11 @@ import PageNotFound from '@/views/PageNotFound.vue';
 import CreatePost from '@/views/post/CreatePost.vue';
 import DetailPost from '@/views/post/DetailPost.vue';
 import AccountPage from '@/views/account/AccountPage.vue';
-// import UserProfilePage from '@/views/UserProfilePage.vue';
 import UpdatePost from '@/views/post/UpdatePost.vue';
+import ResultFilterPage from '@/views/post/ResultFilterPage.vue';
+import ResultSearch from '@/views/post/ResultSearch.vue';
+import ForgetPassword from '@/views/GetOTPForgetPassword.vue';
+import ResetPassword from '@/views/ResetPassword.vue';
 
 const routes = [
   {
@@ -40,6 +43,12 @@ const routes = [
   },
 
   {
+    path: '/filter-result',
+    name: 'ResultFilterPage',
+    component: ResultFilterPage,
+  },
+
+  {
     path: '/post/:id',
     name: 'DetailPost',
     component: DetailPost,
@@ -52,13 +61,23 @@ const routes = [
     component: AccountPage,
   },
 
-  // {
-  //   path: '/user-profile/:id',
-  //   name: 'UserProfilePage',
-  //   component: UserProfilePage,
-  // },
+  {
+    path: '/search-result',
+    name: 'SearchResult',
+    component: ResultSearch,
+  },
 
-  // Trang 404
+  {
+    path: '/get-otp-forget-password',
+    name: 'ForgetPassword',
+    component: ForgetPassword,
+  },
+  {
+    path: '/reset-password',
+    name: 'ResetPassword',
+    component: ResetPassword,
+  },
+
   {
     path: '/:pathMatch(.*)*',
     name: 'PageNotFound',

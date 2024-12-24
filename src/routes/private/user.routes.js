@@ -22,5 +22,6 @@ router.post('/unsave', userController.unSavePost);
 
 router.get('/saved/:userId', userController.getSavedPost);
 router.get('/post/:userId', userController.getAllPostOfUser);
+router.post('/password', userController.changePassword);
 
 module.exports = router;

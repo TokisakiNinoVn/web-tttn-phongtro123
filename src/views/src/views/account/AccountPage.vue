@@ -8,66 +8,64 @@
             <li :class="{ active: activeSection === 'account' }" @click="viewAccountInfo">Quản lý tài khoản</li>
             <li :class="{ active: activeSection === 'posts' }" @click="viewPosts">Quản lý bài đăng</li>
             <li :class="{ active: activeSection === 'saved' }" @click="viewSavedPosts">Các bài viết đã lưu</li>
+            <li :class="{ active: activeSection === 'changepassword' }" @click="viewChangePassWord">Đổi mật khẩu</li>
           </ul>
         </div>
         <div class="content">
             <div class="content">
-                <!-- Account Management -->
                 <div class="account" v-if="activeSection === 'account'">
-                    <h2>Thông tin tài khoản</h2>
-                    <div v-if="userInfo">
-                        <form @submit.prevent="handleUpdate">
-                            <div>
-                                <label>Họ và tên:</label>
-                                <input v-model="updatedUserInfo.name" type="text" />
-                            </div>
-                            <div>
-                                <label>Zalo:</label>
-                                <input v-model="updatedUserInfo.zalo" type="text" />
-                            </div>
-                            <div>
-                                <label>Số điện thoại:</label>
-                                <input v-model="updatedUserInfo.phone" type="text" />
-                            </div>
-                            <div>
-                                <label>Địa chỉ:</label>
-                                <input v-model="updatedUserInfo.address" type="text" />
-                            </div>
-                            <div>
-                                <label>Facebook:</label>
-                                <input v-model="updatedUserInfo.fbUrl" type="text" />
-                            </div>
-                            <div>
-                                <label>Giới tính:</label>
-                                <select v-model="updatedUserInfo.gender">
-                                    <option value="male">Nam</option>
-                                    <option value="female">Nữ</option>
-                                    <option value="other">Khác</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>Bio:</label>
-                                <textarea v-model="updatedUserInfo.bio" rows="4"></textarea>
-                            </div>
-                            <div>
-                                <label>Avatar:</label>
-                                <input type="file" @change="handleFileChange" />
-                                <img :src="userAvatar" alt="Avatar" class="avatar" />
-                            </div>
-                            <button type="submit">Cập nhật thông tin tài khoản</button>
-                        </form>
-                        <button @click="deleteUser(userInfo.id)" class="delete-btn">Xóa tài khoản</button>
-                        <div>
-                            <button @click="logoutUser" class="logout-btn">Đăng xuất</button>
-                        </div>
+                  <h2>Thông tin tài khoản</h2>
+                  <div v-if="userInfo">
+                      <form @submit.prevent="handleUpdate">
+                          <div>
+                              <label>Họ và tên:</label>
+                              <input v-model="updatedUserInfo.name" type="text" />
+                          </div>
+                          <div>
+                              <label>Zalo:</label>
+                              <input v-model="updatedUserInfo.zalo" type="text" />
+                          </div>
+                          <div>
+                              <label>Số điện thoại:</label>
+                              <input v-model="updatedUserInfo.phone" type="text" />
+                          </div>
+                          <div>
+                              <label>Địa chỉ:</label>
+                              <input v-model="updatedUserInfo.address" type="text" />
+                          </div>
+                          <div>
+                              <label>Facebook:</label>
+                              <input v-model="updatedUserInfo.fbUrl" type="text" />
+                          </div>
+                          <div>
+                              <label>Giới tính:</label>
+                              <select v-model="updatedUserInfo.gender">
+                                  <option value="male">Nam</option>
+                                  <option value="female">Nữ</option>
+                                  <option value="other">Khác</option>
+                              </select>
+                          </div>
+                          <div>
+                              <label>Bio:</label>
+                              <textarea v-model="updatedUserInfo.bio" rows="4"></textarea>
+                          </div>
+                          <div>
+                              <label>Avatar:</label>
+                              <input type="file" @change="handleFileChange" />
+                              <img :src="userAvatar" alt="Avatar" class="avatar" />
+                          </div>
+                          <button type="submit">Cập nhật thông tin tài khoản</button>
+                      </form>
+                      <button @click="deleteUser(userInfo.id)" class="delete-btn">Xóa tài khoản</button>
+                      <div>
+                          <button @click="logoutUser" class="logout-btn">Đăng xuất</button>
+                      </div>
 
-                    </div>
-                    <div v-else>
-                        <p>Không có thông tin tài khoản.</p>
-                    </div>
-                </div>
-  
-          <!-- Post Management -->
+                  </div>
+                  <div v-else>
+                      <p>Không có thông tin tài khoản.</p>
+                  </div>
+              </div>
           <div class="post-management" v-if="activeSection === 'posts'">
             <h2>Quản lý bài viết</h2>
             <div v-for="post in userPosts" :key="post.id" class="post-item">
@@ -88,8 +86,6 @@
               <button @click="deletePost(post.id)">Xóa bài viết</button>
             </div>
           </div>
-  
-          <!-- Saved Posts -->
           <div class="save-post" v-if="activeSection === 'saved'">
             <h2>Các bài viết đã lưu</h2>
             <div v-for="post in savedPosts" :key="post.id" class="post-item">
@@ -110,94 +106,111 @@
               <button @click="viewDetails(post.id)">Xem chi tiết bài viết</button>
             </div>
           </div>
+
+          <div class="changepassword" v-if="activeSection === 'changepassword'">
+            <h2>Đổi mật khẩu</h2>
+            <div>
+              <div>
+                <label for="oldPassword">Mật khẩu cũ:</label>
+                <input type="password" v-model="body.oldPassword" />
+              </div>
+              <div>
+                <label for="newPassword">Mật khẩu mới:</label>
+                <input type="password" v-model="body.newPassword" />
+              </div>
+              <div>
+                <label for="confirmPassword">Xác nhận mật khẩu mới:</label>
+                <input type="password" v-model="body.confirmPassword" />
+              </div>
+              <button @click="changePassword">Đổi mật khẩu</button>
+            </div>
+          </div>
+          </div>
         </div>
       </div>
-    </div>
-</div>
-  </template>
-
-
+  </div>
+</template>
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { uploadApi } from '@/api/modules/upload.api';
 import { unSavePostApi } from '@/api/modules/user.api';
 import { deletePostApi } from '@/api/modules/post.api';
-import { deleteUserApi, getPostSaveUserApi, getAllPostOfUserApi, updateUserApi,  } from "@/api/modules/user.api";
+import { deleteUserApi, getPostSaveUserApi, getAllPostOfUserApi, updateUserApi, changePasswordApi } from "@/api/modules/user.api";
 import instance from '@/api/axiosConfig';
 
-// States
 const router = useRouter();
 const userInfo = ref(null);
+const userId = ref(null);
 const updatedUserInfo = ref({});
 const userPosts = ref([]);
 const savedPosts = ref([]);
 const activeSection = ref('account');
 const selectedFile = ref(null);
-// const posts = ref([]);
 
-// Computed property for avatar
 const userAvatar = computed(() => {
     return updatedUserInfo.value?.avatar 
-        ? `${instance.defaults.baseURL}/${updatedUserInfo.value.avatar}`
-        : 'https://i.pinimg.com/736x/dc/bf/44/dcbf443fe182e29d56214dbe7067a5e3.jpg';
+      ? `${instance.defaults.baseURL}/${updatedUserInfo.value.avatar}`
+      : 'https://i.pinimg.com/736x/dc/bf/44/dcbf443fe182e29d56214dbe7067a5e3.jpg';
 });
-// Fetch user information on mount
+const body = {
+  phone: '',
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+}
 onMounted(() => {
-    const userData = localStorage.getItem('userInfo');
-    if (userData) {
-        userInfo.value = JSON.parse(userData);
-        updatedUserInfo.value = { ...userInfo.value };
-    }
+  const userData = localStorage.getItem('userInfo');
+  if (userData) {
+    userInfo.value = JSON.parse(userData);
+    updatedUserInfo.value = { ...userInfo.value };
+    userId.value = userInfo.value.phone;
+  }
 });
 
-//// Methods
 const handleFileChange = (event) => {
-    selectedFile.value = event.target.files[0];
+  selectedFile.value = event.target.files[0];
 };
 
+
+
 const handleUpdate = async () => {
-    try {
-      let avatarUrl = userAvatar.value.replace(`${instance.defaults.baseURL}/`, '');
-        if (selectedFile.value) {
-            const formData = new FormData();
-            formData.append('postId', 0);
-            formData.append('files', selectedFile.value);
-            const uploadResponse = await uploadApi(formData);
-            avatarUrl = uploadResponse.data.data[0].url;
-        }
-
-        // Dữ liệu gửi lên API backend
-        const updatedData = {
-            name: updatedUserInfo.value.name || '',
-            phone: updatedUserInfo.value.phone || '',
-            address: updatedUserInfo.value.address || '',
-            gender: updatedUserInfo.value.gender || '',
-            bio: updatedUserInfo.value.bio || '',
-            avatar: avatarUrl,
-            fbUrl: updatedUserInfo.value.fbUrl || '',
-            zalo: updatedUserInfo.value.zalo || '',
-        };
-
-        // Gửi request tới API backend
-        const response = await updateUserApi(userInfo.value.id, updatedData);
-        console.log('Update user information response:', response);
-
-        // Xử lý kết quả trả về
-        alert('Cập nhật thông tin thành công!');
-        userInfo.value = { ...userInfo.value, ...updatedData };
-        localStorage.setItem('userInfo', JSON.stringify(userInfo.value));
-    } catch (error) {
-        console.error('Error updating user information:', error);
+  try {
+    let avatarUrl = userAvatar.value.replace(`${instance.defaults.baseURL}/`, '');
+    if (selectedFile.value) {
+      const formData = new FormData();
+      formData.append('postId', 0);
+      formData.append('files', selectedFile.value);
+      const uploadResponse = await uploadApi(formData);
+      avatarUrl = uploadResponse.data.data[0].url;
     }
+
+    const updatedData = {
+      name: updatedUserInfo.value.name || '',
+      phone: updatedUserInfo.value.phone || '',
+      address: updatedUserInfo.value.address || '',
+      gender: updatedUserInfo.value.gender || '',
+      bio: updatedUserInfo.value.bio || '',
+      avatar: avatarUrl,
+      fbUrl: updatedUserInfo.value.fbUrl || '',
+      zalo: updatedUserInfo.value.zalo || '',
+    };
+
+    await updateUserApi(userInfo.value.id, updatedData);
+    alert('Cập nhật thông tin thành công!');
+    userInfo.value = { ...userInfo.value, ...updatedData };
+    localStorage.setItem('userInfo', JSON.stringify(userInfo.value));
+  } catch (error) {
+    console.error('Error updating user information:', error);
+  }
 };
 
 const logoutUser = () => {
-    if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
-        localStorage.clear(); 
-        router.push('/'); 
-        alert('Đăng xuất thành công!');
-    }
+  if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+    localStorage.clear(); 
+    router.push('/'); 
+    alert('Đăng xuất thành công!');
+  }
 };
 
 const viewAccountInfo = () => {
@@ -207,58 +220,76 @@ const viewAccountInfo = () => {
 const viewPosts = async () => {
     activeSection.value = 'posts';
     if (userInfo.value?.id) {
-        try {
-            const response = await getAllPostOfUserApi(userInfo.value.id);
-            userPosts.value = response.data.data || [];
-        } catch (error) {
-            console.error('Error fetching user posts:', error);
-        }
+      try {
+        const response = await getAllPostOfUserApi(userInfo.value.id);
+        userPosts.value = response.data.data || [];
+      } catch (error) {
+        console.error('Error fetching user posts:', error);
+      }
     }
 };
 
 const viewSavedPosts = async () => {
-    activeSection.value = 'saved';
+    activeSection.value = 'changepassword';
     if (userInfo.value?.id) {
-        try {
-            const response = await getPostSaveUserApi(userInfo.value.id);
-            savedPosts.value = response.data.data || [];
-        } catch (error) {
-            console.error('Error fetching saved posts:', error);
-        }
+      try {
+        const response = await getPostSaveUserApi(userInfo.value.id);
+        savedPosts.value = response.data.data || [];
+      } catch (error) {
+        console.error('Error fetching saved posts:', error);
+      }
     }
 };
+const viewChangePassWord = async () => {
+  activeSection.value = 'changepassword';
+}
+
+const changePassword = async () => {
+  try {
+    if (body.newPassword !== body.confirmPassword) {
+      console.log(body.newPassword, body.confirmPassword)
+      alert('Mật khẩu nhập lại không khớp!');
+      return;
+    }
+    body.phone = userInfo.value.phone;
+    await changePasswordApi(body);
+    alert('Đổi mật khẩu thành công!');
+  } catch (error) {
+    console.error('Error changing password:', error);
+    alert('Không thể đổi mật khẩu.');
+  }
+};
+
 
 const deleteUser = async (id) => {
     if (confirm('Bạn có chắc chắn muốn xóa tài khoản này?')) {
-        try {
-            await deleteUserApi(id);
-            alert('Xóa tài khoản thành công!');
-            localStorage.removeItem('userInfo');
-            location.reload();
-            router.push('/');
-        } catch (error) {
-            console.error('Error deleting user:', error);
-        }
+      try {
+        await deleteUserApi(id);
+        alert('Xóa tài khoản thành công!');
+        localStorage.removeItem('userInfo');
+        location.reload();
+        router.push('/');
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      }
     }
 };
 
-// Hàm xử lý khi nhấn nút "Xem chi tiết"
 const updatePost = async (postId) => {
-    console.log("Chỉnh sửa bài đăng", postId);
     try {
-        router.push({
-            name: 'UpdatePost',
-            params: { id: postId },
-        });
+      router.push({
+        name: 'UpdatePost',
+        params: { id: postId },
+      });
     } catch (error) {
-        console.error("Lỗi khi gọi API chi tiết bài đăng", error);
+      console.error("Lỗi khi gọi API chi tiết bài đăng", error);
     }
 };
 
 const unSavePost = async (postId) => {
     const body = {
-        postId: postId,
-        userId: userInfo.value.id,
+      postId: postId,
+      userId: userInfo.value.id,
     };
   try {
     await unSavePostApi(body);
@@ -273,9 +304,9 @@ const unSavePost = async (postId) => {
 const deletePost = async (postId) => {
   if (confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
     try {
-        await deletePostApi(postId);
-        alert('Xóa bài viết thành công!');
-        userPosts.value = userPosts.value.filter((post) => post.id !== postId);
+      await deletePostApi(postId);
+      alert('Xóa bài viết thành công!');
+      userPosts.value = userPosts.value.filter((post) => post.id !== postId);
     } catch (error) {
       console.error('Error deleting post:', error);
     }

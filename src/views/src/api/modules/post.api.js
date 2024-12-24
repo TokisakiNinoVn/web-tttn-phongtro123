@@ -20,11 +20,11 @@ const getPostApi = async (id) => {
 };
 
 // public
-const searchPostApi = async () => {
-    return instance.post(`/api/public/post/search/`);
+const searchPostApi = async (body) => {
+    return instance.post(`/api/public/post/search/`, body);
 };
-const fillterPostApi = async () => {
-    return instance.post(`/api/public/post/filter/`);
+const filterPostApi = async (query) => {
+    return instance.get(`/api/public/post/filter`, { params: query });
 };
 
 const getNewPostApi = async () => { 
@@ -41,7 +41,7 @@ export {
     deletePostApi,
     getPostApi,
     searchPostApi,
-    fillterPostApi,
+    filterPostApi,
     getNewPostApi,
     getSametypePostApi
 };

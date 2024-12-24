@@ -23,7 +23,10 @@ exports.login = async (req, res, next) => {
     // Compare password
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return res.status(401).json({ message: 'Mật khẩu không chính xác' });
+      return res.status(200).json({
+        code: 401,
+        message: 'Mật khẩu không chính xác'
+      });
     }
 
     // Create a JWT token
@@ -62,21 +65,18 @@ exports.login = async (req, res, next) => {
 
 exports.register = async (req, res, next) => {
   const { name, phone, password } = req.body;
-  console.log(">> Req: ", req.body);
   try {
     const [phoneCheck] = await db.pool.execute('SELECT * FROM users WHERE phone = ?', [phone]);
     if (phoneCheck.length > 0) {
-      return next(new AppError(HTTP_STATUS.BAD_REQUEST, 'failed', 'Số điện thoại đã được đăng ký', []), req, res, next);
+      return res.status(200).json({
+        code: 401,
+        message: 'Số điện thoại đã được đăng ký'
+      });
     }
-
     const hashedPassword = await bcrypt.hash(password, 8);
-
     const createdAt = new Date();
-
     await db.pool.execute('INSERT INTO users (name, phone, password, createdAt) VALUES (?, ?, ?, ?)', [name, phone,  hashedPassword, createdAt]);
-
     const user = { phone, createdAt };
-
     res.status(201).json({
       code: 201,
       status: 'success',

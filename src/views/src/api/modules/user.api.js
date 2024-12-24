@@ -25,6 +25,16 @@ const getAllPostOfUserApi = async (id) => {
 const unSavePostApi = async (body) => { 
     return instance.post(`/api/private/user/unsave/`, body);
 }
+const changePasswordApi = async (body) => { 
+    return instance.post(`/api/private/user/password/`, body);
+}
+
+const getCodeApi = async (phone) => { 
+    return instance.post(`/api/public/user/code/`, phone);
+}
+const forgetPasswordApi = async (phone) => { 
+    return instance.post(`/api/public/user/forget-password/`, phone);
+}
 
 export {
     updateUserApi,
@@ -32,5 +42,8 @@ export {
     savePostApi,
     getPostSaveUserApi,
     getAllPostOfUserApi,
-    unSavePostApi
+    unSavePostApi,
+    changePasswordApi,
+    getCodeApi,
+    forgetPasswordApi
 };

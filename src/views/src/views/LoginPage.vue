@@ -13,6 +13,7 @@
       <button type="submit">Đăng nhập</button>
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       <p>Chưa có tài khoản? <router-link to="/register">Đăng ký</router-link></p>
+      <p><router-link to="/get-otp-forget-password">Quên mật khẩu</router-link></p>
     </form>
   </div>
 </template>
@@ -28,31 +29,19 @@ const errorMessage = ref('');
 const router = useRouter();
 
 const handleLogin = async () => {
-  try {
     const response = await loginApi({ phone: phone.value, password: password.value });
-
-    if (response?.status === 'success' || response.data) {
-      // Lưu toàn bộ dữ liệu từ field `data` vào localStorage
+    if (response.data?.code == 400 || response.data?.code == 401 || response.data?.code == 404) { 
+      errorMessage.value = response.data?.message || 'Đã xảy ra lỗi, vui lòng thử lại!';
+    } else {
       localStorage.setItem('isLogin', 'true');
       localStorage.setItem('userInfo', JSON.stringify(response.data.data));
       localStorage.setItem('isLogin', 'true');
       localStorage.setItem('token', JSON.stringify(response.data.token));
-
-      // Lấy thời gian hiện tại
       const loginTime = new Date().toISOString();
-
-      // Lưu vào localStorage
       localStorage.setItem('loginTime', loginTime);
-
-      // Chuyển hướng về trang chính
       await router.push('/');
-    } else {
-      throw new Error('Đăng nhập thất bại, thông tin không chính xác.');
     }
-  } catch (error) {
-    errorMessage.value = error.message || 'Đã xảy ra lỗi, vui lòng thử lại!';
-  }
-};
+  };
 </script>
 
 <style scoped>

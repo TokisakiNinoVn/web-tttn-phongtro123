@@ -35,19 +35,16 @@ export default {
     };
   },
   methods: {
-    // Hàm xử lý đăng ký
     async register() {
-      console.log(">> Text: ", this.name, this.phone, this.password);
       try {
-        // Gọi API register từ service
         const response = await registerApi({name: this.name, phone: this.phone, password: this.password });
-
-        // Kiểm tra nếu đăng ký thành công, chuyển người dùng đến trang đăng nhập
-        if (response.status === 201) {
-          this.$router.push('/login'); // Chuyển đến trang đăng nhập
+        if (response.data?.code == 401) {
+          this.errorMessage = response.data?.message || 'Đăng ký thất bại, vui lòng kiểm tra lại thông tin!';
+        } else {
+          alert('Đăng ký thành công!');
+          this.$router.push('/login');
         }
       } catch (error) {
-        // Hiển thị thông báo lỗi khi đăng ký thất bại
         this.errorMessage = 'Đăng ký thất bại, vui lòng kiểm tra lại thông tin!';
       }
     },

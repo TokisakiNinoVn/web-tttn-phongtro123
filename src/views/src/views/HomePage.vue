@@ -15,7 +15,7 @@
     </div>
     <!-- Thông báo dụ tạo tài khoản -->
     <div v-if="promptRegister" class="prompt-register">
-        <button @click="closeNotification"><ion-icon name="close-circle-outline"></ion-icon></button>
+        <button @click="closeNotification"></button>
         <p>Bạn chưa có tài khoản? <br> Đăng ký ngay để tận hưởng các tính năng tuyệt vời!</p>
         <button @click="redirectToRegister">Đăng ký ngay</button>
         <button @click="redirectToLogin">Đăng nhập</button>

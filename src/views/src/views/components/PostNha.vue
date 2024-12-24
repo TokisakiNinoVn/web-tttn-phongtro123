@@ -54,30 +54,15 @@ const fetchNewPosts = async () => {
   }
 };
 
-// Gọi API khi component được mount
 onMounted(() => {
   fetchNewPosts();
 });
 
-// Hàm xử lý khi nhấn nút "Xem chi tiết"
 const viewDetails = async (postId) => {
-    console.log("Xem chi tiết bài đăng", postId);
-  try {
-    // Gọi API để lấy chi tiết bài đăng
-    // const response = await getPostApi(postId);
-    // if (response.code === 200 || response.data) {
-    router.push({
-      name: 'DetailPost',
-      params: { id: postId },
-    });
-        // state: { postDetails: response.data }
-      // });
-    // } else {
-    //   console.error("Không thể lấy chi tiết bài đăng", response.message);
-    // }
-  } catch (error) {
-    console.error("Lỗi khi gọi API chi tiết bài đăng", error);
-  }
+  router.push({
+    name: 'DetailPost',
+    params: { id: postId },
+  });
 };
 </script>
 

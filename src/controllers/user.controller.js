@@ -79,7 +79,6 @@ exports.getSavedPost = async (req, res, next) => {
   }
 }
 
-
 exports.getAllPostOfUser = async (req, res, next) => {
     const { userId } = req.params;
 
@@ -129,7 +128,6 @@ exports.updateUser = async (req, res, next) => {
   const { name, phone, address, gender, bio, avatar, fbUrl, zalo } = req.body;
 
   try {
-    // Câu truy vấn cập nhật thông tin người dùng
     const query = `
       UPDATE users 
       SET 
@@ -163,16 +161,8 @@ exports.updateUser = async (req, res, next) => {
   }
 };
 
-
-// Xóa người dùng
 exports.deleteUser = async (req, res, next) => {
   const { id } = req.params;
-
-  // Kiểm tra nếu id là 1
-  if (id === '1') {
-    return res.status(403).json({ error: "Không thể xóa người dùng quản trị viên này!" });
-  }
-
   try {
     const sql = `DELETE FROM users WHERE id = ?`;
     await db.pool.execute(sql, [id]);
@@ -187,7 +177,6 @@ exports.unSavePost = async (req, res, next) => {
   const { userId, postId } = req.body;
 
   try {
-    // Kiểm tra xem postId và userId có tồn tại không
     const [post] = await db.pool.execute(`SELECT id FROM posts WHERE id = ?`, [postId]);
     const [user] = await db.pool.execute(`SELECT id FROM users WHERE id = ?`, [userId]);
 
@@ -195,21 +184,102 @@ exports.unSavePost = async (req, res, next) => {
       return next(new AppError(HTTP_STATUS.NOT_FOUND, 'fail', 'Post or User not found', []), req, res, next);
     }
 
-    // check xem post đã được lưu chưa
     const [savedPost] = await db.pool.execute(`SELECT * FROM saves_post WHERE id_user = ? AND id_post = ?`, [userId, postId]);
     if (savedPost.length === 0) { 
       return next(new AppError(HTTP_STATUS.BAD_REQUEST, 'fail', 'Bạn chưa lưu bài viết này', []), req, res, next);
     }
     
-    const createAt = new Date();
-
-    // Lưu post vào danh sách đã lưu
     const sql = `DELETE FROM saves_post WHERE id_user = ? AND id_post = ?`;
     await db.pool.execute(sql, [userId, postId]);
 
     res.status(HTTP_STATUS.OK).json({
       message: 'Post unliked successfully',
       data: []
+    });
+  } catch (error) {
+    return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', error.message, []), req, res, next);
+  }
+}
+
+exports.changePassword = async (req, res, next) => {
+  const { phone, oldPassword, newPassword } = req.body;
+  try {
+    const [users] = await db.pool.execute(`SELECT * FROM users WHERE phone = ?`, [phone]);
+
+    // Check if user exists
+    if (users.length === 0) {
+      return next(new AppError(HTTP_STATUS.NOT_FOUND, 'fail', 'User not found', []), req, res, next);
+    }
+
+    const user = users[0];
+    const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+
+    // Check if old password matches
+    if (!isPasswordMatch) {
+      return next(new AppError(HTTP_STATUS.BAD_REQUEST, 'fail', 'Mật khẩu cũ không chính xác', []), req, res, next);
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.pool.execute(`UPDATE users SET password = ? WHERE phone = ?`, [hashedPassword, phone]);
+
+    res.status(HTTP_STATUS.OK).json({
+      message: 'Password changed successfully',
+    });
+  } catch (error) {
+    return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', error.message, []), req, res, next);
+  }
+}
+
+exports.getCodeAccount = async (req, res, next) => { 
+  const { phone } = req.body;
+  try {
+    const [users] = await db.pool.execute(`SELECT * FROM users WHERE phone = ?`, [phone]);
+
+    if (users.length === 0) {
+      return next(new AppError(HTTP_STATUS.NOT_FOUND, 'fail', 'User not found', []), req, res, next);
+    }
+
+    // const randomCode = Math.floor(100000 + Math.random() * 9000);
+    const randomCode = Math.floor(100000 + Math.random() * 900000);
+    await db.pool.execute(`UPDATE users SET last_otp = ? WHERE phone = ?`, [randomCode, phone]);
+
+    const message = `Mã xác thực của bạn là: ${randomCode}`;
+    res.status(HTTP_STATUS.OK).json({
+      code: randomCode,
+      message: message
+    });
+  } catch (error) {
+    return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', error.message, []), req, res, next);
+  }
+}
+
+exports.forgetPassword = async (req, res, next) => { 
+  const { phone, code, newPassword } = req.body;
+  try {
+    const [users] = await db.pool.execute(`SELECT * FROM users WHERE phone = ?`, [phone]);
+
+    if (users.length === 0) {
+      return res.status(HTTP_STATUS.OK).json({
+        code: 404,
+        message: 'Khoong tìm thấy người dùng',
+      });
+    }
+
+    const user = users[0];
+    const codeInt = parseInt(code);
+    if (user.last_otp !== codeInt) {
+      return res.status(HTTP_STATUS.OK).json({
+        code: 400,
+        message: 'Mã xác thực không chính xác',
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.pool.execute(`UPDATE users SET password = ? WHERE phone = ?`, [hashedPassword, phone]);
+
+    res.status(HTTP_STATUS.OK).json({
+      code: 200,
+      message: 'Thay đổi mật khẩu thành công',
     });
   } catch (error) {
     return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', error.message, []), req, res, next);
