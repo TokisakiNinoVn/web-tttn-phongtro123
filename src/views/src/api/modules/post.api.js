@@ -23,8 +23,8 @@ const getPostApi = async (id) => {
 const searchPostApi = async (body) => {
     return instance.post(`/api/public/post/search/`, body);
 };
-const filterPostApi = async (query) => {
-    return instance.get(`/api/public/post/filter`, { params: query });
+const filterPostApi = async (body) => {
+    return instance.post(`/api/public/post/filter`, body);
 };
 
 const getNewPostApi = async () => { 

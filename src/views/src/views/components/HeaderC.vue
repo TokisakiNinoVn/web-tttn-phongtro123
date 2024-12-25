@@ -120,8 +120,8 @@ const handleClose = () => {
 };
 
 const applyFilter = (filter) => {
-  console.log('Filter:', filter);
   isFilterBoxOpen.value = false;
+  console.log('Filter:', filter);
 };
 </script>
 

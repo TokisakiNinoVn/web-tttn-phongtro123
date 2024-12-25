@@ -8,7 +8,6 @@
             <ul>
                 <li v-for="post in posts" :key="post.id" class="post-item mb3">
                     <div v-if="post.files && post.files.length > 0" class="post-files">
-                        <!-- Hiển thị file đầu tiên trong post.files -->
                         <div class="file-item">
                             <template v-if="post.files[0].type === 1">
                                 <img :src="baseURL + post.files[0].url" alt="Ảnh bài đăng" class="post-image" />
@@ -32,7 +31,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { searchPostApi } from '@/api/modules/post.api';
+import { filterPostApi } from '@/api/modules/post.api';
 import instance from '@/api/axiosConfig';
 
 const posts = ref([]);
@@ -42,10 +41,10 @@ const router = useRouter();
 const baseURL = instance.defaults.baseURL;
 
 onMounted(async () => {
-    const query = route.query || {};
-    keySearch.value = query.address || 'Tất cả';
+    const body = route.query || {};
+    console.log('body', body);
     try {
-        const response = await searchPostApi(query);
+        const response = await filterPostApi(body);
         posts.value = response.data.data || [];
     } catch (error) {
         console.error('Lỗi khi tìm kiếm bài đăng:', error);

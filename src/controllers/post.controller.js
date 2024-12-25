@@ -242,27 +242,51 @@ exports.searchByAddress = async (req, res, next) => {
     }
 };
 exports.filter = async (req, res, next) => {
-    const { type, address, price, acreage, amenities } = req.body;
-
+    const { type, address, price, acreage } = req.body;
+    console.log(req.body);
     try {
-        let query = `
+        // Điều kiện lọc cơ bản
+        const filterType = type && type.trim() ? `%${type.trim()}%` : '%';
+        const filterAddress = address && address.trim() ? `%${address.trim()}%` : '%';
+
+        // Điều kiện lọc theo giá
+        const priceConditions = {
+            0: 'price > 0',
+            1: 'price <= 1000000',
+            2: 'price > 1000000 AND price <= 2000000',
+            3: 'price > 2000000 AND price <= 3000000',
+            4: 'price > 3000000 AND price <= 4000000',
+            5: 'price > 4000000 AND price <= 5000000',
+            6: 'price > 5000000',
+        };
+        const conditionPrice = price && !isNaN(price) && priceConditions[price] 
+            ? priceConditions[price] 
+            : 'price > 0';
+
+        // Điều kiện lọc theo diện tích
+        const acreageConditions = {
+            0: 'acreage > 0',
+            1: 'acreage < 20',
+            2: 'acreage >= 20 AND acreage < 30',
+            3: 'acreage >= 30 AND acreage < 40',
+            4: 'acreage >= 40 AND acreage < 50',
+            5: 'acreage >= 50 AND acreage < 60',
+        };
+        const conditionAcreage = acreage && !isNaN(acreage) && acreageConditions[acreage] 
+            ? acreageConditions[acreage] 
+            : 'acreage > 0';
+
+        // Xây dựng câu truy vấn
+        const query = `
             SELECT * FROM posts
-            WHERE type LIKE ? AND address LIKE ? AND price <= ? AND acreage >= ?
+            WHERE type LIKE ? AND address LIKE ? AND ${conditionPrice} AND ${conditionAcreage}
         `;
-        const params = [`%${type}%`, `%${address}%`, price, acreage];
+        const params = [filterType, filterAddress];
 
-        // Append amenities filter if provided
-        if (amenities && amenities.length > 0) {
-            const amenitiesConditions = amenities.map(id => `${id} = 1`).join(' AND ');
-            query += ` AND id IN (
-                SELECT id_post FROM amenities WHERE ${amenitiesConditions}
-            )`;
-        }
-
-        // Execute the query to get posts
+        // Thực thi truy vấn
         const [posts] = await db.pool.execute(query, params);
 
-        // Fetch files associated with each post
+        // Lấy danh sách file liên quan
         const postsWithFiles = await Promise.all(
             posts.map(async (post) => {
                 const [files] = await db.pool.execute(
@@ -273,7 +297,7 @@ exports.filter = async (req, res, next) => {
             })
         );
 
-        // Respond with filtered posts and their files
+        // Phản hồi kết quả
         res.status(HTTP_STATUS.OK).json({
             code: HTTP_STATUS.OK,
             totalDocs: postsWithFiles.length,
@@ -281,10 +305,11 @@ exports.filter = async (req, res, next) => {
             message: 'Posts filtered successfully',
         });
     } catch (error) {
-        // Handle errors gracefully
         return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'fail', error.message, []), req, res, next);
     }
 };
+
+
 
 exports.getNewPost = async (req, res, next) => {
     try {
