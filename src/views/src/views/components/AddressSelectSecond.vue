@@ -1,54 +1,59 @@
 <template>
-  <div class="main-form">
+  <div class="main-form bg-white pa4 br3 shadow-3 fixed top-50 left-50 translate--50">
     <div class="relative">
       <!-- Close Button -->
-      <button @click="closeForm" class="absolute top-2 right-2">
-        <ion-icon name="close-outline"></ion-icon>
+      <button @click="closeForm" class="absolute top-0 right-0 bg-transparent bn pointer">
+        <ion-icon name="close-outline" class="f3 gray"></ion-icon>
       </button>
 
-      <div>
-        <p>Địa chỉ đã chọn</p>
-        <p>{{ selectedProvinceName }} - {{ selectedDistrictName }}</p>
+      <div class="tc mb4">
+        <p class="f5 b">Địa chỉ đã chọn</p>
+        <p class="f6">{{ selectedProvinceName }} - {{ selectedDistrictName }}</p>
       </div>
+
       <div>
-        <div>
-          <label for="province">Tỉnh thành</label>
-          <div>
+        <!-- Province Selector -->
+        <div class="mb3">
+          <label for="province" class="f6 b db mb2">Tỉnh thành</label>
+          <div class="relative">
             <select 
               v-model="selectedProvince" 
-              @change="fetchDistricts"
-            >
+              @change="fetchDistricts" 
+              class="w-100 pa2 ba b--gray br2 bg-light-gray">
               <option value="">Chọn tỉnh thành</option>
               <option v-for="province in provinces" :key="province.idProvince" :value="province.idProvince">
                 {{ province.name }}
               </option>
             </select>
-            <div v-if="loadingProvince">
-              <img src="https://icons8.com/preloaders/preloaders/1488/Iphone-spinner-2.gif" alt="Loading" />
+            <div v-if="loadingProvince" class="absolute top-0 right-0">
+              <img src="../../assets/loading.svg" alt="Loading" class="h2 w2" />
             </div>
           </div>
         </div>
 
         <!-- District Selector -->
-        <div>
-          <label for="district">Quận huyện</label>
-          <div>
-            <select v-model="selectedDistrict" @change="fetchCommunes">
+        <div class="mb3">
+          <label for="district" class="f6 b db mb2">Quận huyện</label>
+          <div class="relative">
+            <select 
+              v-model="selectedDistrict" 
+              @change="fetchCommunes" 
+              class="w-100 pa2 ba b--gray br2 bg-light-gray">
               <option value="">Chọn quận huyện</option>
               <option v-for="district in districts" :key="district.idDistrict" :value="district.idDistrict">
                 {{ district.name }}
               </option>
             </select>
-            <div v-if="loadingDistrict">
-              <img src="https://icons8.com/preloaders/preloaders/1488/Iphone-spinner-2.gif" alt="Loading" />
+            <div v-if="loadingDistrict" class="absolute top-0 right-0">
+              <img src="../../assets/loading.svg" alt="Loading" class="h2 w2" />
             </div>
           </div>
         </div>
       </div>
 
       <!-- Complete Button -->
-      <button @click="completeSelection" class="flex items-center justify-center">
-        <ion-icon class="mr-4" name="checkmark-outline"></ion-icon>
+      <button @click="completeSelection" class="w-100 pa3 bg-green white bn br2 pointer flex items-center justify-center">
+        <ion-icon class="mr2" name="checkmark-outline"></ion-icon>
         Xác nhận
       </button>
     </div>
@@ -63,10 +68,8 @@ export default {
       districts: [],
       selectedProvince: '',
       selectedDistrict: '',
-      selectedCommune: '',
       loadingProvince: true,
       loadingDistrict: false,
-      loadingCommune: false,
     };
   },
   computed: {
@@ -76,7 +79,6 @@ export default {
     selectedDistrictName() {
       return this.districts.find(d => d.idDistrict === this.selectedDistrict)?.name || '';
     },
-    
   },
   methods: {
     async fetchProvinces() {
@@ -115,97 +117,25 @@ export default {
   },
   mounted() {
     this.fetchProvinces();
+    const script = document.createElement('script');
+    script.src = "https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.esm.js";
+    script.type = "module";
+    document.head.appendChild(script);
+
+    const noModuleScript = document.createElement('script');
+    noModuleScript.src = "https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.js";
+    noModuleScript.setAttribute("nomodule", "");
+    document.head.appendChild(noModuleScript);
   },
 };
 </script>
 
 <style scoped>
-
 .main-form {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-}
-.main {
-  display: flex;
-}
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 50;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  width: 100%;
-  position: relative;
-}
-
-.close-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  color: gray;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.address-display {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.address-display .title {
-  font-weight: bold;
-  font-size: 18px;
-}
-
-.input-group {
-  margin-bottom: 16px;
-}
-
-.label {
-  font-size: 14px;
-  margin-bottom: 4px;
-  display: block;
-}
-
-.input-container {
-  position: relative;
-}
-
-.input-field {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid gray;
-  border-radius: 4px;
-}
-
-.loading-icon {
-  position: absolute;
-  top: 12px;
-  right: 8px;
-}
-
-.complete-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: green;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.complete-btn:hover {
-  background-color: darkgreen;
+  max-width: 30rem;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
 }
 </style>

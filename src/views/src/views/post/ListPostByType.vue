@@ -1,14 +1,14 @@
 <template>
     <HeaderC />
     <div class="filter-results pa4">
-    <h2 class="tc f2 fw6 mb4">Kết quả sau khi lọc</h2>
+    <h2 class="tc f2 fw6 mb4">Các bài đăng {{ nameType.name }}</h2>
     <div v-if="posts.length === 0" class="tc flex w-100 items-center flex-column">
         <img 
-        src="https://i.pinimg.com/736x/66/01/25/66012514b347e0e9c1dce46fc48cfe64.jpg" 
+        src="../../../public/images/not-found.png" 
         alt="Không tìm thấy" 
         class="not-found-image br4 mb3"
         />
-        <p class="f3 black">Oops!... Không tìm thấy bài đăng nào phù hợp với điều kiện lọc của bạn.</p>
+        <p class="f3 black">Oops!... Không tìm thấy bài đăng nào thuộc loại "{{ nameType.name }}"</p>
         <router-link to="/" class="f5 link dim underline blue mt3">
         <ion-icon name="arrow-back-outline" class="mr2"></ion-icon>Trở về trang chủ
         </router-link>
@@ -66,9 +66,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { filterPostApi } from '@/api/modules/post.api';
+import { getSametypePostApi } from '@/api/modules/post.api';
+import { getAllTypesApi } from '@/api/modules/type.api';
 import instance from '@/api/axiosConfig';
 import HeaderC from '../components/HeaderC.vue';
 import FooterC from '../components/FooterC.vue';
@@ -77,15 +78,36 @@ const posts = ref([]);
 const route = useRoute();
 const router = useRouter();
 const baseURL = instance.defaults.baseURL;
+const typeId = ref(route.params.typeId);
+const nameType = ref({});
 
-onMounted(async () => {
-    const body = route.query || {};
+const fetchData = async () => {
+    const body = { type: typeId.value };
     try {
-    const response = await filterPostApi(body);
-    posts.value = response.data.data || [];
+        const response = await getSametypePostApi(body);
+        if (response.code === 200 || response.data.data != null) {
+            posts.value = response.data.data;
+        } else {
+            console.error('Không thể lấy tin đăng mới', response.message);
+        }
+
+        const listTypes = await getAllTypesApi();
+        const type = listTypes.data.data.find((item) => item.id == typeId.value);
+        nameType.value = type;
     } catch (error) {
-    console.error('Lỗi khi tìm kiếm bài đăng:', error);
+        console.error('Lỗi khi gọi API', error);
     }
+};
+
+// Gọi API lần đầu khi component được mount
+onMounted(() => {
+    fetchData();
+});
+
+// Lắng nghe thay đổi của typeId
+watch(() => route.params.typeId, (newTypeId) => {
+    typeId.value = newTypeId;
+    fetchData();
 });
 
 const formatPrice = (price) => {
@@ -98,9 +120,10 @@ const viewDetails = async (postId) => {
 };
 
 const handleImageError = (event) => {
-    event.target.src = '/images/default-image.png'; // Đường dẫn tới hình ảnh mặc định
+    event.target.src = 'https://i.pinimg.com/736x/d9/6a/32/d96a32a3ccd3cbd97c4950c9c6903870.jpg';
 };
 </script>
+
 
 <style scoped>
 .filter-results {

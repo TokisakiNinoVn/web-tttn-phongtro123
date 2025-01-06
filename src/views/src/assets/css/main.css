@@ -1,0 +1,15 @@
+::-webkit-scrollbar {
+    width: 0px;
+}
+
+ul, li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Noto Sans", serif !important;
+    font-size: 16px;
+    background-color: rgb(245, 247, 248);
+}

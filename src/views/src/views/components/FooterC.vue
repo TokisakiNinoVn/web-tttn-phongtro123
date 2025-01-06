@@ -1,115 +1,71 @@
 <template>
-    <footer class="app-footer">
-      <div class="footer-container">
-        <!-- Logo và giới thiệu -->
-        <div class="footer-section">
-          <h2>Trang Đăng Tin Phòng Trọ</h2>
-          <p>
-            Nền tảng hàng đầu để tìm kiếm và đăng tin cho thuê phòng trọ, nhà nghỉ, căn hộ.
-            Giúp bạn kết nối nhanh chóng và tiện lợi với chủ nhà hoặc khách thuê.
-          </p>
-        </div>
-  
+  <footer class="bg-near-black white pv4 mt4">
+    <div class="mw8 center ph3-ns">
+      <!-- Logo và giới thiệu -->
+      <div class="mb4">
+        <h2 class="f3 gold">phongtro123.com</h2>
+        <p class="lh-copy">
+          Nền tảng hàng đầu để tìm kiếm và đăng tin cho thuê phòng trọ, nhà nghỉ, căn hộ.
+          Giúp bạn kết nối nhanh chóng và tiện lợi với chủ nhà hoặc khách thuê.
+        </p>
+      </div>
+
+      <!-- Lưới footer -->
+      <div class="flex-l flex-wrap-l justify-between-l">
         <!-- Liên hệ -->
-        <div class="footer-section">
-          <h3>Liên hệ</h3>
-          <ul>
-            <li>Email: support@phongtro.com</li>
-            <li>Hotline: 1900 123 456</li>
-            <li>Địa chỉ: 123 Đường ABC, Quận 1, TP. Hồ Chí Minh</li>
+        <div class="w-50-l w-100 mb4">
+          <h3 class="f4 gold">Liên hệ</h3>
+          <ul class="list pl0">
+            <li class="mb2 flex items-center">
+              <i class="fas fa-envelope mr2 gold"></i>
+              <span>Email: <a href="mailto:support@phongtro.com" class="link white underline-hover">support@phongtro.com</a></span>
+            </li>
+            <li class="mb2 flex items-center">
+              <i class="fas fa-phone mr2 gold"></i>
+              <span>Hotline: 1900 123 456</span>
+            </li>
+            <li class="mb2 flex items-center">
+              <i class="fas fa-map-marker-alt mr2 gold"></i>
+              <span>Địa chỉ: 123 Đường ABC, Quận 1, TP. Hồ Chí Minh</span>
+            </li>
           </ul>
         </div>
-  
+
         <!-- Chính sách -->
-        <div class="footer-section">
-          <h3>Chính sách</h3>
-          <ul>
-            <li><a href="#">Chính sách bảo mật</a></li>
-            <li><a href="#">Điều khoản sử dụng</a></li>
-            <li><a href="#">Quy định đăng tin</a></li>
+        <div class="w-25-l w-100 mb4">
+          <h3 class="f4 gold">Chính sách</h3>
+          <ul class="list pl0">
+            <li class="mb2"><a href="#" class="link white underline-hover">Chính sách bảo mật</a></li>
+            <li class="mb2"><a href="#" class="link white underline-hover">Điều khoản sử dụng</a></li>
+            <li class="mb2"><a href="#" class="link white underline-hover">Quy định đăng tin</a></li>
           </ul>
         </div>
-  
+
         <!-- Mạng xã hội -->
-        <div class="footer-section">
-          <h3>Kết nối với chúng tôi</h3>
-          <div class="social-links">
-            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <div class="w-25-l w-100">
+          <h3 class="f4 gold">Kết nối với chúng tôi</h3>
+          <div class="flex">
+            <a href="#" class="link white dim mr3"><i class="fab fa-facebook fa-2x"></i></a>
+            <a href="#" class="link white dim mr3"><i class="fab fa-twitter fa-2x"></i></a>
+            <a href="#" class="link white dim mr3"><i class="fab fa-instagram fa-2x"></i></a>
+            <a href="#" class="link white dim"><i class="fab fa-youtube fa-2x"></i></a>
           </div>
         </div>
       </div>
-      <div class="footer-bottom">
-        <p>&copy; 2024 Trang Đăng Tin Phòng Trọ. All Rights Reserved.</p>
-      </div>
-    </footer>
-  </template>
-  
-  <script setup>
-  // Dùng script setup để tối giản cấu trúc
-  </script>
-  
-  <style scoped>
-  .app-footer {
-    background-color: #2c3e50;
-    color: #ecf0f1;
-    padding: 2rem 1rem;
-    font-family: Arial, sans-serif;
-  }
-  
-  .footer-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 1.5rem;
-  }
-  
-  .footer-section {
-    flex: 1 1 20rem;
-  }
-  
-  .footer-section h2, .footer-section h3 {
-    color: #f39c12;
-    margin-bottom: 1rem;
-  }
-  
-  .footer-section ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .footer-section ul li {
-    margin-bottom: 0.5rem;
-  }
-  
-  .footer-section ul li a {
-    color: #ecf0f1;
-    text-decoration: none;
-  }
-  
-  .footer-section ul li a:hover {
-    text-decoration: underline;
-  }
-  
-  .social-links a {
-    color: #ecf0f1;
-    font-size: 1.5rem;
-    margin-right: 0.5rem;
-    text-decoration: none;
-  }
-  
-  .social-links a:hover {
-    color: #f39c12;
-  }
-  
-  .footer-bottom {
-    text-align: center;
-    margin-top: 2rem;
-    border-top: 1px solid #7f8c8d;
-    padding-top: 1rem;
-    font-size: 0.9rem;
-  }
-  </style>
-  
+    </div>
+
+    <!-- Footer bottom -->
+    <div class="bt b--white-20 pt3 mt4 tc">
+      <p class="f6">&copy; 2024 Trang Đăng Tin Phòng Trọ. All Rights Reserved.</p>
+    </div>
+  </footer>
+</template>
+
+<script setup>
+// Không cần thay đổi gì thêm
+</script>
+
+<style>
+/* Font Awesome icons (nếu chưa import ở nơi khác) */
+/* @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'); */
+</style>

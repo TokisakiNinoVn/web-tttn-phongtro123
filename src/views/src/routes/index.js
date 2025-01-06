@@ -11,6 +11,8 @@ import ResultFilterPage from '@/views/post/ResultFilterPage.vue';
 import ResultSearch from '@/views/post/ResultSearch.vue';
 import ForgetPassword from '@/views/GetOTPForgetPassword.vue';
 import ResetPassword from '@/views/ResetPassword.vue';
+import ListPostByType from '@/views/post/ListPostByType.vue';
+import ServiceIntro from '@/views/ServiceIntro.vue';
 
 const routes = [
   {
@@ -79,6 +81,18 @@ const routes = [
   },
 
   {
+    path: '/type/:typeId',
+    name: 'ListPostByType',
+    component: ListPostByType,
+  },
+
+  {
+    path: '/service',
+    name: 'ServiceIntro',
+    component: ServiceIntro,
+  },
+
+  {
     path: '/:pathMatch(.*)*',
     name: 'PageNotFound',
     component: PageNotFound,
@@ -89,15 +103,5 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 });
-
-// Route guard để kiểm tra người dùng đã đăng nhập chưa
-// router.beforeEach((to, from, next) => {
-//   const isAuthenticated = localStorage.getItem('isLogin'); // Kiểm tra token
-//   if (isAuthenticated == 'true') {
-//     next(); 
-//   } else {
-//     next('/login');
-//   }
-// });
 
 export default router;

@@ -1,80 +1,98 @@
 <template>
-  <div class="main-form">
-    <div class="relative">
-      <!-- Close Button -->
-      <button @click="closeForm" class="absolute top-2 right-2">
-        <ion-icon name="close-outline"></ion-icon>
+  <div class="fixed top-0 left-0 w-100 h-100 bg-black-50 flex items-center justify-center z-5">
+    <div class="bg-white pa4 br3 shadow-1 w-50">
+      <button @click="closeForm" class="absolute top-1 right-1 bg-transparent bn pointer">
+        <ion-icon name="close-outline" class="f3 gray"></ion-icon>
       </button>
-
-      <!-- Address Display -->
-      <div>
-        <p>Địa chỉ đã chọn</p>
-        <p>{{ selectedProvinceName }} - {{ selectedDistrictName }} - {{ selectedCommuneName }}</p>
+      <div class="mb4">
+        <p class="f5 b mb2">Địa chỉ đã chọn</p>
+        <p class="f6 gray">
+          {{ selectedProvinceName }} - {{ selectedDistrictName }} - {{ selectedCommuneName }}
+        </p>
       </div>
-
-      <!-- Main Content -->
       <div>
-        <!-- Province Selector -->
-        <div>
-          <label for="province">Tỉnh thành</label>
-          <div>
-            <select 
-              v-model="selectedProvince" 
+        <div class="mb3">
+          <label for="province" class="db mb1 f6 b">Tỉnh thành</label>
+          <div class="relative">
+            <select
+              v-model="selectedProvince"
               @change="fetchDistricts"
+              class="w-100 pa2 br2 ba b--light-gray"
             >
               <option value="">--Chọn tỉnh thành--</option>
-              <option v-for="province in provinces" :key="province.idProvince" :value="province.idProvince">
+              <option
+                v-for="province in provinces"
+                :key="province.idProvince"
+                :value="province.idProvince"
+              >
                 {{ province.name }}
               </option>
             </select>
-            <div v-if="loadingProvince">
-              <img src="https://icons8.com/preloaders/preloaders/1488/Iphone-spinner-2.gif" alt="Loading" />
+            <div v-if="loadingProvince" class="absolute top-1 right-1">
+              <img src="../../assets/loading.svg" alt="Loading" class="w2 h2" />
             </div>
           </div>
         </div>
 
-        <!-- District Selector -->
-        <div>
-          <label for="district">Quận huyện</label>
-          <div>
-            <select v-model="selectedDistrict" @change="fetchCommunes">
+        <div class="mb3">
+          <label for="district" class="db mb1 f6 b">Quận huyện</label>
+          <div class="relative">
+            <select
+              v-model="selectedDistrict"
+              @change="fetchCommunes"
+              class="w-100 pa2 br2 ba b--light-gray"
+            >
               <option value="">--Chọn quận huyện--</option>
-              <option v-for="district in districts" :key="district.idDistrict" :value="district.idDistrict">
+              <option
+                v-for="district in districts"
+                :key="district.idDistrict"
+                :value="district.idDistrict"
+              >
                 {{ district.name }}
               </option>
             </select>
-            <div v-if="loadingDistrict">
-              <img src="https://icons8.com/preloaders/preloaders/1488/Iphone-spinner-2.gif" alt="Loading" />
+            <div v-if="loadingDistrict" class="absolute top-1 right-1">
+              <img src="../../assets/loading.svg" alt="Loading" class="w2 h2" />
             </div>
           </div>
         </div>
 
-        <!-- Commune Selector -->
-        <div>
-          <label for="commune">Phường xã</label>
-          <div>
-            <select v-model="selectedCommune">
+        <div class="mb3">
+          <label for="commune" class="db mb1 f6 b">Phường xã</label>
+          <div class="relative">
+            <select
+              v-model="selectedCommune"
+              class="w-100 pa2 br2 ba b--light-gray"
+            >
               <option value="">--Chọn phường xã--</option>
-              <option v-for="commune in communes" :key="commune.idCommune" :value="commune.idCommune">
+              <option
+                v-for="commune in communes"
+                :key="commune.idCommune"
+                :value="commune.idCommune"
+              >
                 {{ commune.name }}
               </option>
             </select>
-            <div v-if="loadingCommune">
-              <img src="https://icons8.com/preloaders/preloaders/1488/Iphone-spinner-2.gif" alt="Loading" />
+            <div v-if="loadingCommune" class="absolute top-1 right-1">
+              <img src="../../assets/loading.svg" alt="Loading" class="w2 h2" />
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Complete Button -->
-      <button @click="completeSelection" class="flex items-center justify-center">
-        <ion-icon class="mr-4" name="checkmark-outline"></ion-icon>
+      <button
+        @click="completeSelection"
+        class="w-100 bg-green white pa3 br2 b f6 pointer dim flex items-center justify-center"
+      >
+        <ion-icon class="mr2" name="checkmark-outline"></ion-icon>
         Xác nhận
       </button>
     </div>
   </div>
 </template>
 
+<style scoped>
+</style>
 
 <script>
 export default {
@@ -161,93 +179,3 @@ export default {
 };
 </script>
 
-<style scoped>
-
-.main-form {
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-.main {
-  display: flex;
-}
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 50;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  width: 100%;
-  position: relative;
-}
-
-.close-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  color: gray;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.address-display {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.address-display .title {
-  font-weight: bold;
-  font-size: 18px;
-}
-
-.input-group {
-  margin-bottom: 16px;
-}
-
-.label {
-  font-size: 14px;
-  margin-bottom: 4px;
-  display: block;
-}
-
-.input-container {
-  position: relative;
-}
-
-.input-field {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid gray;
-  border-radius: 4px;
-}
-
-.loading-icon {
-  position: absolute;
-  top: 12px;
-  right: 8px;
-}
-
-.complete-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: green;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.complete-btn:hover {
-  background-color: darkgreen;
-}
-</style>

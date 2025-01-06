@@ -243,13 +243,9 @@ exports.searchByAddress = async (req, res, next) => {
 };
 exports.filter = async (req, res, next) => {
     const { type, address, price, acreage } = req.body;
-    console.log(req.body);
     try {
-        // Điều kiện lọc cơ bản
         const filterType = type && type.trim() ? `%${type.trim()}%` : '%';
         const filterAddress = address && address.trim() ? `%${address.trim()}%` : '%';
-
-        // Điều kiện lọc theo giá
         const priceConditions = {
             0: 'price > 0',
             1: 'price <= 1000000',
@@ -259,11 +255,11 @@ exports.filter = async (req, res, next) => {
             5: 'price > 4000000 AND price <= 5000000',
             6: 'price > 5000000',
         };
+
         const conditionPrice = price && !isNaN(price) && priceConditions[price] 
             ? priceConditions[price] 
             : 'price > 0';
-
-        // Điều kiện lọc theo diện tích
+        
         const acreageConditions = {
             0: 'acreage > 0',
             1: 'acreage < 20',
@@ -276,7 +272,6 @@ exports.filter = async (req, res, next) => {
             ? acreageConditions[acreage] 
             : 'acreage > 0';
 
-        // Xây dựng câu truy vấn
         const query = `
             SELECT * FROM posts
             WHERE type LIKE ? AND address LIKE ? AND ${conditionPrice} AND ${conditionAcreage}

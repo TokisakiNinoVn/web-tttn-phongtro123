@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './routes/index';
 import 'tachyons/css/tachyons.min.css';
+import './assets/css/main.css';
 
 // if (!localStorage.getItem('isLogin')) {
 //   localStorage.setItem('isLogin', 'false');

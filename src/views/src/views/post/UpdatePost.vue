@@ -1,80 +1,127 @@
 <template>
-    <div class="create-post">
-        <h1>Edit post</h1>
-        <form @submit.prevent="handleSubmit">
-            <div class="form-group">
-                <label for="title">Title:</label>
-                <input v-model="form.title" id="title" type="text" required />
-            </div>
-            <div class="form-group">
-                <label for="type">Type:</label>
-                <select v-model="form.type" id="type" required>
-                    <option v-for="type in types" :key="type.id" :value="type.id">
-                        {{ type.name }}
-                    </option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="address">Address:</label>
-                <input v-model="form.address" id="address" type="text" required />
-                <button type="button" @click="openAddressModal">Chọn địa chỉ</button>
-            </div>
+    <HeaderC />
+    <div class="main-content mw8 center mt5 pa4 bg-light-gray br3 shadow-1 mb5 flex items-center flex-column">
+        <h1 class="f2">Chỉnh sửa thông tin bài đăng</h1>
+        <form @submit.prevent="handleSubmit" class="flex flex-wrap">
+            <div class="w-100 pr2">
+                <div class="mb3">
+                    <label class="db mb1" for="title">Tiêu đề:</label>
+                    <input class="input-reset ba b--black-20 pa2 mb2 w-100" v-model="form.title" id="title" type="text" required />
+                </div>
+                <div class="mb3">
+                    <label class="db mb1" for="type">Loại bài đăng:</label>
+                    <select class="input-reset ba b--black-20 pa2 mb2 w-100" v-model="form.type" id="type" required>
+                        <option v-for="type in types" :key="type.id" :value="type.id">
+                            {{ type.name }}
+                        </option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label for="price">Price:</label>
-                <input v-model="form.price" id="price" type="number" required />
-            </div>
-            <div class="form-group">
-                <label for="acreage">Acreage:</label>
-                <input v-model="form.acreage" id="acreage" type="number" required />
-            </div>
-            <div class="form-group">
-                <label for="realaddress">Real Address:</label>
-                <input v-model="form.realaddress" id="realaddress" type="text" required />
-            </div>
-            <div class="form-group">
-                <label for="owner">Owner:</label>
-                <input v-model="form.owner" id="owner" type="text" required />
-            </div>
-            <div class="form-group">
-                <label for="phoneOwner">Owner's Phone:</label>
-                <input v-model="form.phoneOwner" id="phoneOwner" type="text" required />
-            </div>
-            <div class="form-group">
-                <label for="description">Description:</label>
-                <textarea v-model="form.description" id="description" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="amenities">Amenities:</label>
-                <div>
-                    <button type="button" @click="checkAllAmenities">Check All</button>
-                    <button type="button" @click="clearAllAmenities">Clear All</button>
+                <div class="flex">
+                    <div class="mb3 w-50 mr3">
+                        <label class="db mb1" for="price">Giá:</label>
+                        <input class="input-reset ba b--black-20 pa2 mb2 w-100" v-model="form.price" id="price" type="number" required />
+                    </div>
+                    <div class="mb3 w-50">
+                        <label class="db mb1" for="acreage">Diện tích:</label>
+                        <input class="input-reset ba b--black-20 pa2 mb2 w-100" v-model="form.acreage" id="acreage" type="number" required />
+                    </div>
                 </div>
-                <div>
-                    <label><input type="checkbox" v-model="form.amenities[0]" value="1" /> Đầy đủ nội thất</label>
-                    <label><input type="checkbox" v-model="form.amenities[1]" value="1" /> Có gác</label>
-                    <label><input type="checkbox" v-model="form.amenities[2]" value="1" /> Có máy giặt</label>
-                    <label><input type="checkbox" v-model="form.amenities[3]" value="1" /> Giờ giấc tự do</label>
-                    <label><input type="checkbox" v-model="form.amenities[4]" value="1" /> Có tủ lạnh</label>
-                    <label><input type="checkbox" v-model="form.amenities[5]" value="1" /> Có bảo vệ 24/24</label>
-                    <label><input type="checkbox" v-model="form.amenities[6]" value="1" /> Có thang máy</label>
-                    <label><input type="checkbox" v-model="form.amenities[7]" value="1" /> Có hầm/chỗ để xe</label>
-                    <label><input type="checkbox" v-model="form.amenities[8]" value="1" /> Không chung chủ</label>
-                    <label><input type="checkbox" v-model="form.amenities[9]" value="1" /> Có máy lạnh</label>
-                    <label><input type="checkbox" v-model="form.amenities[10]" value="1" /> Có gác</label>
+                <div class="mb3">
+                    <label class="db mb1" for="address">Địa chỉ:</label>
+                    <div class="flex justify-lg-space-evenly">
+                        <button type="button" @click="openAddressModal" class="f6 w-30 link dim br2 ba ph3 pv2 mb2 dib dark-green mr3">Chọn địa chỉ</button>
+                        <input class="input-reset ba b--black-20 pa2 mb2 w-100" v-model="form.address" id="address" type="text" required />
+                    </div>
+                </div>
+                <div class="mb3">
+                    <label class="db mb1" for="realaddress">Địa chỉ thực tế:</label>
+                    <input class="input-reset ba b--black-20 pa2 mb2 w-100" v-model="form.realaddress" id="realaddress" type="text" required />
+                </div>
+                <div class="mb3">
+                    <label class="db mb1" for="description">Các mô tả khác:</label>
+                    <textarea class="input-reset ba b--black-20 pa2 mb2 w-100" v-model="form.description" id="description" required></textarea>
+                </div>
+                <div class="flex pl2">
+                    <div class="w-50 mb3 mr3">
+                        <label class="db mb1" for="owner">Chủ:</label>
+                        <input class="input-reset ba b--black-20 pa2 mb2 w-100" v-model="form.owner" id="owner" type="text" required />
+                    </div>
+                    <div class="w-50 mb3">
+                        <label class="db mb1" for="phoneOwner">Số điện thoại:</label>
+                        <input class="input-reset ba b--black-20 pa2 mb2 w-100" v-model="form.phoneOwner" id="phoneOwner" type="text" required />
+                    </div>
+                </div>
+                <div class="mb3">
+                    <label class="db mb1" for="amenities">Tiện ích:</label>
+                    <div class="mb2 flex">
+                        <button type="button" @click="checkAllAmenities" class="f6 link dim br2 ba ph3 pv2 mb2 dib dark-green mr3 flex items-center"><ion-icon name="checkmark-circle-outline" class="mr2"></ion-icon>Chọn tất cả</button>
+                        <button type="button" @click="clearAllAmenities" class="f6 link dim br2 ba ph3 pv2 mb2 dib dark-red flex items-center"><ion-icon name="close-circle-outline" class="mr2"></ion-icon>Bỏ chọn tất cả</button>
+                    </div>
+                    <div class="flex flex-wrap">
+                        <label class="db flex items-center mb2 mr3">
+                            <input type="checkbox" v-model="form.amenities[0]" value="1" class="mr2" />
+                            <span class="ph2 br3 ba b--light-gray bg-white dib">Đầy đủ nội thất</span>
+                        </label>
+                        <label class="db flex items-center mb2 mr3">
+                            <input type="checkbox" v-model="form.amenities[1]" value="1" class="mr2" />
+                            <span class="ph2 br3 ba b--light-gray bg-white dib">Có gác</span>
+                        </label>
+                        <label class="db flex items-center mb2 mr3">
+                            <input type="checkbox" v-model="form.amenities[2]" value="1" class="mr2" />
+                            <span class="ph2 br3 ba b--light-gray bg-white dib">Có máy giặt</span>
+                        </label>
+                        <label class="db flex items-center mb2 mr3">
+                            <input type="checkbox" v-model="form.amenities[3]" value="1" class="mr2" />
+                            <span class="ph2 br3 ba b--light-gray bg-white dib">Giờ giấc tự do</span>
+                        </label>
+                        <label class="db flex items-center mb2 mr3">
+                            <input type="checkbox" v-model="form.amenities[4]" value="1" class="mr2" />
+                            <span class="ph2 br3 ba b--light-gray bg-white dib">Có tủ lạnh</span>
+                        </label>
+                        <label class="db flex items-center mb2 mr3">
+                            <input type="checkbox" v-model="form.amenities[5]" value="1" class="mr2" />
+                            <span class="ph2 br3 ba b--light-gray bg-white dib">Có bảo vệ 24/24</span>
+                        </label>
+                        <label class="db flex items-center mb2 mr3">
+                            <input type="checkbox" v-model="form.amenities[6]" value="1" class="mr2" />
+                            <span class="ph2 br3 ba b--light-gray bg-white dib">Có thang máy</span>
+                        </label>
+                        <label class="db flex items-center mb2 mr3">
+                            <input type="checkbox" v-model="form.amenities[7]" value="1" class="mr2" />
+                            <span class="ph2 br3 ba b--light-gray bg-white dib">Có hầm/chỗ để xe</span>
+                        </label>
+                        <label class="db flex items-center mb2 mr3">
+                            <input type="checkbox" v-model="form.amenities[8]" value="1" class="mr2" />
+                            <span class="ph2 br3 ba b--light-gray bg-white dib">Không chung chủ</span>
+                        </label>
+                        <label class="db flex items-center mb2 mr3">
+                            <input type="checkbox" v-model="form.amenities[9]" value="1" class="mr2" />
+                            <span class="ph2 br3 ba b--light-gray bg-white dib">Có máy lạnh</span>
+                        </label>
+                        <label class="db flex items-center mb2 mr3">
+                            <input type="checkbox" v-model="form.amenities[10]" value="1" class="mr2" />
+                            <span class="ph2 br3 ba b--light-gray bg-white dib">Có gác</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex">
+                    <div class="mb3 w-50 mr4">
+                        <label class="db mb1" for="files">Các ảnh/Video:</label>
+                        <input @change="handleFileChange" class="input-reset ba b--black-20 pa2 mb2 w-100" id="files" type="file" multiple />
+                    </div>
+                    <div class="mb3 w-50">
+                        <label class="db mb1" for="files3d">Các ảnh 3D:</label>
+                        <input @change="handleFileChange3d" class="input-reset ba b--black-20 pa2 mb2 w-100" id="files3d" type="file" multiple />
+                    </div>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="files">Các ảnh/Video:</label>
-                <input @change="handleFileChange" id="files" type="file" multiple />
+            <div class="w-100 mt3 flex justify-center">
+                <button type="submit" class="f6 link dim br2 ba ph3 pv2 mb2 dib white bg-blue flex items-center"><ion-icon name="file-tray-full-outline" class="mr2"></ion-icon>Cập nhật bài viết</button>
             </div>
-            <div class="form-group">
-                <label for="files">Các ảnh 3D: </label>
-                <input @change="handleFileChange3d" id="files3d" type="file" multiple />
-            </div>
-            <button type="submit">Cập nhật bài viết</button>
         </form>
-        <p v-if="message">{{ message }}</p>
+        <p v-if="message" class="mt3 green">{{ message }}</p>
     </div>
 
     <!-- Preview Modal for Full-Screen View -->
@@ -94,8 +141,61 @@
         </div>
     </div>
 
+    <FooterC />
     <AddressModal v-if="isModalOpen" @close="closeModal" @complete="updateAddress" />
 </template>
+
+<style scoped>
+.main-content {
+    margin-top: 160px;
+}
+
+.preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    position: relative;
+    background: white;
+    padding: 20px;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+.full-preview {
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain;
+}
+.nav-button, .close-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #fff;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+.nav-button {
+    left: 10px;
+}
+.close-button {
+    right: 10px;
+}
+</style>
+
 
 <script setup>
 import { ref, onMounted } from 'vue';
@@ -104,6 +204,8 @@ import { getAllTypesApi } from '@/api/modules/type.api';
 import { updatePostApi, getPostApi } from '@/api/modules/post.api';
 import { uploadApi, upload3dApi } from '@/api/modules/upload.api';
 import AddressModal from '../components/AddressSelectC.vue';
+import HeaderC from '../components/HeaderC.vue';
+import FooterC from '../components/FooterC.vue';
 
 const types = ref([]);
 const router = useRouter();
@@ -343,114 +445,3 @@ const nextFile = () => {
 //     form.value.files3d.splice(index, 1);
 // };
 </script>
-
-<style scoped>
-.create-post {
-    max-width: 600px;
-    margin: 0 auto;
-}
-.form-group {
-    margin-bottom: 1rem;
-}
-label {
-    display: block;
-    margin-bottom: 0.5rem;
-}
-input, select, textarea {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-button {
-    padding: 0.5rem 1rem;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-button:hover {
-    background-color: #0056b3;
-}
-
-.preview-section {
-    margin-top: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
-}
-
-.preview-section h2 {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.preview-item {
-    margin-top: 10px;
-}
-
-.preview-image, .preview-video, .preview-3d-image {
-    max-width: 200px;
-    margin-right: 10px;
-}
-
-.preview-video {
-    max-width: 300px;
-    max-height: 200px;
-}
-
-.preview-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    position: relative;
-    background: white;
-    padding: 20px;
-    max-width: 90%;
-    max-height: 90%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.full-preview {
-    width: 100%;
-    height: auto;
-    max-height: 80vh;
-    object-fit: contain;
-}
-
-.nav-button, .close-button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: #fff;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    font-size: 18px;
-}
-
-.nav-button {
-    left: 10px;
-}
-
-.close-button {
-    right: 10px;
-}
-
-.nav-button:hover, .close-button:hover {
-    background-color: #f1f1f1;
-}
-
-</style>

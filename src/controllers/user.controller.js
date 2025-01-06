@@ -69,11 +69,6 @@ exports.getSavedPost = async (req, res, next) => {
         totalDocs: postsWithFiles.length,
         data: postsWithFiles
     });
-    res.status(HTTP_STATUS.OK).json({
-      message: 'Get saved post successfully',
-      totalDocs: posts.length,
-      data: posts
-    });
   } catch (error) {
     return next(new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR,'fail',error.message,[]), req,res, next);
   }
